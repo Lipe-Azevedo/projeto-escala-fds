@@ -10,24 +10,27 @@ import (
 func (ud *userDomainService) CreateUserServices(
 	userDomain model.UserDomainInterface,
 ) (model.UserDomainInterface, *rest_err.RestErr) {
-	logger.Info("Init createUser model", zap.String("journey", "createUser"))
+	logger.Info(
+		"Init createUser model",
+		zap.String("journey", "createUser"),
+	)
 
-	// Validação para usuários master
-	if userDomain.GetUserType() == model.UserTypeMaster && userDomain.GetWorkInfo() != nil {
-		return nil, rest_err.NewBadRequestError("Master users cannot have work info")
-	}
+	// // Validação para usuários master
+	// if userDomain.GetUserType() == model.UserTypeMaster && userDomain.GetWorkInfo() != nil {
+	// 	return nil, rest_err.NewBadRequestError("Master users cannot have work info")
+	// }
 
-	// Validação para colaboradores
-	if userDomain.GetUserType() == model.UserTypeCollaborator {
-		if userDomain.GetWorkInfo() == nil {
-			return nil, rest_err.NewBadRequestError("Collaborators must have work info")
-		}
+	// // Validação para colaboradores
+	// if userDomain.GetUserType() == model.UserTypeCollaborator {
+	// 	if userDomain.GetWorkInfo() == nil {
+	// 		return nil, rest_err.NewBadRequestError("Collaborators must have work info")
+	// 	}
 
-		// Validações adicionais do WorkInfo podem ser adicionadas aqui
-		if userDomain.GetWorkInfo().SuperiorID == "" {
-			return nil, rest_err.NewBadRequestError("Collaborators must have a superior")
-		}
-	}
+	// 	// Validações adicionais do WorkInfo podem ser adicionadas aqui
+	// 	if userDomain.GetWorkInfo().SuperiorID == "" {
+	// 		return nil, rest_err.NewBadRequestError("Collaborators must have a superior")
+	// 	}
+	// }
 
 	userDomain.EncryptPassword()
 

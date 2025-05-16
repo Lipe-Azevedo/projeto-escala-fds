@@ -39,7 +39,7 @@ func (uc *userControllerInterface) UpdateUser(c *gin.Context) {
 
 	domain := model.NewUserUpdateDomain(
 		userRequest.Name,
-		userRequest.Age,
+		userRequest.Password,
 	)
 
 	err := uc.service.UpdateUser(userId, domain)
