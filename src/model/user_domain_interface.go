@@ -5,7 +5,6 @@ type UserDomainInterface interface {
 	GetEmail() string
 	GetPassword() string
 	GetName() string
-	GetAge() int
 
 	SetID(string)
 
@@ -21,17 +20,16 @@ func NewUserDomain(
 		email:    email,
 		password: password,
 		name:     name,
-		age:      age,
 	}
 }
 
 func NewUserUpdateDomain(
 	name string,
-	age int,
+	password string,
 
 ) UserDomainInterface {
 	return &userDomain{
-		name: name,
-		age:  age,
+		name:     name,
+		password: password,
 	}
 }

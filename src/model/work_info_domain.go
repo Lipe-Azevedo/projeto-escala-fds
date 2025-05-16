@@ -1,8 +1,13 @@
 package model
 
-import "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err"
+type Team string
 
-// Dias úteis para folga fixa
+const (
+	CustomerService  Team = "Customer Service"
+	Security         Team = "security"
+	TechnicalSupport Team = "Technical Support"
+)
+
 type Weekday string
 
 const (
@@ -13,7 +18,6 @@ const (
 	Friday    Weekday = "friday"
 )
 
-// Tipos de turno
 type Shift string
 
 const (
@@ -22,7 +26,6 @@ const (
 	NightShift     Shift = "22:00-06:00"
 )
 
-// Folgas de fim de semana
 type WeekendDayOff string
 
 const (
@@ -30,42 +33,20 @@ const (
 	Sunday   WeekendDayOff = "sunday"
 )
 
-type WorkInfo struct {
-	Team          string        `json:"team"`
-	Position      string        `json:"position"`
-	DefaultShift  Shift         `json:"default_shift"`
-	WeekdayOff    Weekday       `json:"weekday_off"`
-	WeekendDayOff WeekendDayOff `json:"weekend_day_off"`
-	SuperiorID    string        `json:"superior_id"`
+type WorkInfoDomain struct {
+	userID        string
+	team          Team
+	position      string
+	defaultShift  Shift
+	weekdayOff    Weekday
+	weekendDayOff WeekendDayOff
+	superiorID    string
 }
 
-type WorkInfoInterface interface {
-	GetTeam() string
-	GetPosition() string
-	GetDefaultShift() Shift
-	GetWeekdayOff() Weekday
-	GetWeekendDayOff() WeekendDayOff
-	GetSuperiorID() string
-
-	Validate() *rest_err.RestErr
-}
-
-func (w *WorkInfo) GetTeam() string                 { return w.Team }
-func (w *WorkInfo) GetPosition() string             { return w.Position }
-func (w *WorkInfo) GetDefaultShift() Shift          { return w.DefaultShift }
-func (w *WorkInfo) GetWeekdayOff() Weekday          { return w.WeekdayOff }
-func (w *WorkInfo) GetWeekendDayOff() WeekendDayOff { return w.WeekendDayOff }
-func (w *WorkInfo) GetSuperiorID() string           { return w.SuperiorID }
-
-func (w *WorkInfo) Validate() *rest_err.RestErr {
-	if w.Team == "" {
-		return rest_err.NewBadRequestError("Team is required")
-	}
-	if w.Position == "" {
-		return rest_err.NewBadRequestError("Position is required")
-	}
-	if w.SuperiorID == "" {
-		return rest_err.NewBadRequestError("Superior ID is required")
-	}
-	return nil
-}
+func (w *WorkInfoDomain) GetUserId() string               { return w.userID }
+func (w *WorkInfoDomain) GetTeam() Team                   { return w.team }
+func (w *WorkInfoDomain) GetPosition() string             { return w.position }
+func (w *WorkInfoDomain) GetDefaultShift() Shift          { return w.defaultShift }
+func (w *WorkInfoDomain) GetWeekdayOff() Weekday          { return w.weekdayOff }
+func (w *WorkInfoDomain) GetWeekendDayOff() WeekendDayOff { return w.weekendDayOff }
+func (w *WorkInfoDomain) GetSuperiorID() string           { return w.superiorID }

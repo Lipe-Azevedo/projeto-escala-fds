@@ -1,4 +1,3 @@
-// password
 package model
 
 import (
