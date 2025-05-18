@@ -8,6 +8,14 @@ const (
 	TechnicalSupport Team = "Technical Support"
 )
 
+type Shift string
+
+const (
+	MorningShift   Shift = "06:00-14:00"
+	AfternoonShift Shift = "14:00-22:00"
+	NightShift     Shift = "22:00-06:00"
+)
+
 type Weekday string
 
 const (
@@ -16,14 +24,6 @@ const (
 	Wednesday Weekday = "wednesday"
 	Thursday  Weekday = "thursday"
 	Friday    Weekday = "friday"
-)
-
-type Shift string
-
-const (
-	MorningShift   Shift = "06:00-14:00"
-	AfternoonShift Shift = "14:00-22:00"
-	NightShift     Shift = "22:00-06:00"
 )
 
 type WeekendDayOff string

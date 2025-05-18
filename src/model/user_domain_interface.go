@@ -5,7 +5,7 @@ type UserDomainInterface interface {
 	GetEmail() string
 	GetPassword() string
 	GetName() string
-
+	GetUserType() UserType
 	SetID(string)
 
 	EncryptPassword()
@@ -16,7 +16,6 @@ func NewUserDomain(
 	password string,
 	name string,
 	userType UserType,
-
 ) UserDomainInterface {
 	return &userDomain{
 		email:    email,
@@ -29,7 +28,6 @@ func NewUserDomain(
 func NewUserUpdateDomain(
 	name string,
 	password string,
-
 ) UserDomainInterface {
 	return &userDomain{
 		name:     name,

@@ -8,5 +8,4 @@ type UserEntity struct {
 	Password string             `bson:"password"`
 	Name     string             `bson:"name"`
 	UserType string             `bson:"user_type"`
-	WorkInfo *WorkInfoEntity    `bson:"work_info,omitempty"`
 }

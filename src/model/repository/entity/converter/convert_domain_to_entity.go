@@ -12,5 +12,6 @@ func ConvertDomainToEntity(
 		Email:    domain.GetEmail(),
 		Password: domain.GetPassword(),
 		Name:     domain.GetName(),
+		UserType: string(domain.GetUserType()),
 	}
 }

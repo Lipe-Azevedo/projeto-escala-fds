@@ -34,3 +34,7 @@ func (ud *userDomain) GetPassword() string {
 func (ud *userDomain) GetName() string {
 	return ud.name
 }
+
+func (ud *userDomain) GetUserType() UserType {
+	return ud.userType
+}
