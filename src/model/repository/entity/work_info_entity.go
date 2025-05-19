@@ -1,6 +1,7 @@
 package entity
 
 type WorkInfoEntity struct {
+	UserID        string `bson:"user_id"`
 	Team          string `bson:"team"`
 	Position      string `bson:"position"`
 	DefaultShift  string `bson:"default_shift"`
