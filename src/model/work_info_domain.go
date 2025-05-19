@@ -50,3 +50,10 @@ func (w *WorkInfoDomain) GetDefaultShift() Shift          { return w.defaultShif
 func (w *WorkInfoDomain) GetWeekdayOff() Weekday          { return w.weekdayOff }
 func (w *WorkInfoDomain) GetWeekendDayOff() WeekendDayOff { return w.weekendDayOff }
 func (w *WorkInfoDomain) GetSuperiorID() string           { return w.superiorID }
+
+func (w *WorkInfoDomain) SetTeam(team Team)                  { w.team = team }
+func (w *WorkInfoDomain) SetPosition(position string)        { w.position = position }
+func (w *WorkInfoDomain) SetDefaultShift(shift Shift)        { w.defaultShift = shift }
+func (w *WorkInfoDomain) SetWeekdayOff(day Weekday)          { w.weekdayOff = day }
+func (w *WorkInfoDomain) SetWeekendDayOff(day WeekendDayOff) { w.weekendDayOff = day }
+func (w *WorkInfoDomain) SetSuperiorID(id string)            { w.superiorID = id }

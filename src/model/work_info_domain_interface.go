@@ -8,6 +8,13 @@ type WorkInfoDomainInterface interface {
 	GetWeekdayOff() Weekday
 	GetWeekendDayOff() WeekendDayOff
 	GetSuperiorID() string
+
+	SetTeam(team Team)
+	SetPosition(position string)
+	SetDefaultShift(shift Shift)
+	SetWeekdayOff(day Weekday)
+	SetWeekendDayOff(day WeekendDayOff)
+	SetSuperiorID(id string)
 }
 
 func NewWorkInfoDomain(
