@@ -7,18 +7,26 @@ import (
 	"go.uber.org/zap"
 )
 
-func (ud *userDomainService) UpdateWorkInfoServices(
+func (wd *workInfoDomainService) UpdateWorkInfoServices(
 	userId string,
 	workInfoDomain model.WorkInfoDomainInterface,
 ) *rest_err.RestErr {
 	logger.Info("Init UpdateWorkInfo service", zap.String("journey", "updateWorkInfo"))
 
-	// Verificar se o superior existe
-	if workInfoDomain.GetSuperiorID() != "" {
-		if _, err := ud.userRepository.FindUserByID(workInfoDomain.GetSuperiorID()); err != nil {
-			return rest_err.NewBadRequestError("Superior not found")
-		}
+	err := wd.workInfoRepository.UpdateWorkInfo(userId, workInfoDomain)
+	if err != nil {
+		logger.Error(
+			"Error tyring to call repository.",
+			err,
+			zap.String("journey", "updateWorkInfo"),
+		)
+		return err
 	}
 
-	return ud.userRepository.UpdateWorkInfo(userId, workInfoDomain)
+	logger.Info(
+		"updateWorkInfo service executed successfully.",
+		zap.String("userId", userId),
+		zap.String("journey", "updateWorkInfo"),
+	)
+	return nil
 }

@@ -2,17 +2,25 @@ package repository
 
 import (
 	"context"
+	"os"
 
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/logger"
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err"
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model"
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/repository/entity/converter"
+	"go.uber.org/zap"
 )
 
 func (ur *userRepository) CreateWorkInfo(
 	workInfoDomain model.WorkInfoDomainInterface,
 ) (model.WorkInfoDomainInterface, *rest_err.RestErr) {
-	collection := ur.dataBaseConnection.Collection("work_infos") // Coleção separada
+	logger.Info(
+		"Init createWorkInfo repository.",
+		zap.String("journey", "createUser"))
+
+	collection_name := os.Getenv(MONGODB_WORK_INFO_DB)
+
+	collection := ur.dataBaseConnection.Collection(collection_name)
 
 	value := converter.ConvertWorkInfoDomainToEntity(workInfoDomain)
 

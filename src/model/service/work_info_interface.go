@@ -7,28 +7,26 @@ import (
 )
 
 func NewWorkInfiDomainService(
-	workInfoRepository repository.UserRepository,
-) UserDomainService {
-	return &userDomainService{userRepository}
+	workInfoRepository repository.WorkInfoRepository,
+) WorkInfoDomainService {
+	return &workInfoDomainService{workInfoRepository}
 }
 
 type workInfoDomainService struct {
-	userRepository repository.UserRepository
+	workInfoRepository repository.WorkInfoRepository
 }
 
-type orkInfonService interface {
-	CreateUserServices(model.UserDomainInterface) (
-		model.UserDomainInterface, *rest_err.RestErr)
+type WorkInfoDomainService interface {
+	CreateWorkInfoServices(
+		workInfoDomain model.WorkInfoDomainInterface,
+	) (model.WorkInfoDomainInterface, *rest_err.RestErr)
 
-	FindUserByEmailServices(
-		email string,
-	) (model.UserDomainInterface, *rest_err.RestErr)
+	FindWorkInfoByUserIdServices(
+		userId string,
+	) (model.WorkInfoDomainInterface, *rest_err.RestErr)
 
-	FindUserByIDServices(
-		id string,
-	) (model.UserDomainInterface, *rest_err.RestErr)
-
-	UpdateUser(string, model.UserDomainInterface) *rest_err.RestErr
-
-	DeleteUser(string) *rest_err.RestErr
+	UpdateWorkInfoServices(
+		userId string,
+		workInfoDomain model.WorkInfoDomainInterface,
+	) *rest_err.RestErr
 }

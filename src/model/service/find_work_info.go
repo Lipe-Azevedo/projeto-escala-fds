@@ -7,10 +7,10 @@ import (
 	"go.uber.org/zap"
 )
 
-func (ud *userDomainService) FindWorkInfoByUserIdServices(
+func (wd *workInfoDomainService) FindWorkInfoByUserIdServices(
 	userId string,
 ) (model.WorkInfoDomainInterface, *rest_err.RestErr) {
 	logger.Info("Init FindWorkInfoByUserId service", zap.String("journey", "findWorkInfo"))
 
-	return ud.userRepository.FindWorkInfoByUserId(userId)
+	return wd.workInfoRepository.FindWorkInfoByUserId(userId)
 }
