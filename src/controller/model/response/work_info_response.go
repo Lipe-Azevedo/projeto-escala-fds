@@ -1,6 +1,7 @@
 package response
 
 type WorkInfoResponse struct {
+	UserID        string `json:"user_id"`
 	Team          string `json:"team"`
 	Position      string `json:"position"`
 	DefaultShift  string `json:"default_shift"`
