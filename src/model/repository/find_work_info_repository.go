@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (ur *userRepository) FindWorkInfoByUserId(
+func (wr *workInfoRepository) FindWorkInfoByUserId(
 	userId string,
 ) (model.WorkInfoDomainInterface, *rest_err.RestErr) {
 	logger.Info(
@@ -23,7 +23,7 @@ func (ur *userRepository) FindWorkInfoByUserId(
 
 	collection_name := os.Getenv(MONGODB_WORK_INFO_DB)
 
-	collection := ur.dataBaseConnection.Collection(collection_name)
+	collection := wr.dataBaseConnection.Collection(collection_name)
 
 	workInfoEntity := &entity.WorkInfoEntity{}
 	filter := bson.M{"user_id": userId}

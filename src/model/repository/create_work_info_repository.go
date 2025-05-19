@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (ur *userRepository) CreateWorkInfo(
+func (wr *workInfoRepository)CreateWorkInfo(
 	workInfoDomain model.WorkInfoDomainInterface,
 ) (model.WorkInfoDomainInterface, *rest_err.RestErr) {
 	logger.Info(
@@ -20,7 +20,7 @@ func (ur *userRepository) CreateWorkInfo(
 
 	collection_name := os.Getenv(MONGODB_WORK_INFO_DB)
 
-	collection := ur.dataBaseConnection.Collection(collection_name)
+	collection := wr.dataBaseConnection.Collection(collection_name)
 
 	value := converter.ConvertWorkInfoDomainToEntity(workInfoDomain)
 

@@ -22,21 +22,6 @@ type workInfoRepository struct {
 	dataBaseConnection *mongo.Database
 }
 
-// CreateWorkInfo implements WorkInfoRepository.
-func (w *workInfoRepository) CreateWorkInfo(workInfoDomain model.WorkInfoDomainInterface) (model.WorkInfoDomainInterface, *rest_err.RestErr) {
-	panic("unimplemented")
-}
-
-// FindWorkInfoByUserId implements WorkInfoRepository.
-func (w *workInfoRepository) FindWorkInfoByUserId(userId string) (model.WorkInfoDomainInterface, *rest_err.RestErr) {
-	panic("unimplemented")
-}
-
-// UpdateWorkInfo implements WorkInfoRepository.
-func (w *workInfoRepository) UpdateWorkInfo(userId string, workInfoDomain model.WorkInfoDomainInterface) *rest_err.RestErr {
-	panic("unimplemented")
-}
-
 type WorkInfoRepository interface {
 	CreateWorkInfo(
 		workInfoDomain model.WorkInfoDomainInterface,

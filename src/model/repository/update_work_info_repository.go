@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (ur *userRepository) UpdateWorkInfo(
+func (wr *workInfoRepository) UpdateWorkInfo(
 	userId string,
 	workInfoDomain model.WorkInfoDomainInterface,
 ) *rest_err.RestErr {
@@ -22,7 +22,7 @@ func (ur *userRepository) UpdateWorkInfo(
 
 	collection_name := os.Getenv(MONGODB_WORK_INFO_DB)
 
-	collection := ur.dataBaseConnection.Collection(collection_name)
+	collection := wr.dataBaseConnection.Collection(collection_name)
 
 	value := converter.ConvertWorkInfoDomainToEntity(workInfoDomain)
 	filter := bson.M{"user_id": userId}
