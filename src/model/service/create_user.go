@@ -15,6 +15,11 @@ func (ud *userDomainService) CreateUserServices(
 		zap.String("journey", "createUser"),
 	)
 
+	user, _ := ud.FindUserByEmailServices(userDomain.GetEmail())
+	if user != nil {
+		return nil, rest_err.NewBadRequestError("Email is already regidtred in another account")
+	}
+
 	// // Validação para usuários master
 	// if userDomain.GetUserType() == model.UserTypeMaster && userDomain.GetWorkInfo() != nil {
 	// 	return nil, rest_err.NewBadRequestError("Master users cannot have work info")
