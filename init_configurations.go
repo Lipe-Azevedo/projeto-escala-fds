@@ -9,7 +9,7 @@ import (
 
 func initDependencies(
 	database *mongo.Database,
-) (controller.UserControllerInterface, controller.WorkInfoControllerInterface) {
+) (controller.UserControllerInterface, controller.WorkInfoControllerInterface, controller.ShiftSwapControllerInterface) {
 	// User
 	userRepo := repository.NewUserRepository(database)
 	userService := service.NewUserDomainService(userRepo)
@@ -20,5 +20,10 @@ func initDependencies(
 	workInfoService := service.NewWorkInfiDomainService(workInfoRepo)
 	workInfoController := controller.NewWorkInfoControllerInterface(workInfoService)
 
-	return userController, workInfoController
+	// ShiftSwap
+	shiftSwapRepo := repository.NewShiftSwapRepository(database)
+	shiftSwapService := service.NewShiftSwapDomainService(shiftSwapRepo)
+	shiftSwapController := controller.NewShiftSwapControllerInterface(shiftSwapService)
+
+	return userController, workInfoController, shiftSwapController
 }
