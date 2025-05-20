@@ -17,6 +17,7 @@ func (sc *shiftSwapControllerInterface) CreateShiftSwap(c *gin.Context) {
 		zap.String("journey", "createShiftSwap"))
 
 	var shiftSwapRequest request.ShiftSwapRequest
+
 	if err := c.ShouldBindJSON(&shiftSwapRequest); err != nil {
 		logger.Error("Error validating shift swap request", err,
 			zap.String("journey", "createShiftSwap"))

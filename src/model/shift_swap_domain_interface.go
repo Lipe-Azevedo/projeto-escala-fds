@@ -43,3 +43,22 @@ func NewShiftSwapDomain(
 		createdAt:     time.Now(),
 	}
 }
+
+func NewShiftSwapUpdateDomain(
+	requestedID string,
+	currentShift Shift,
+	newShift Shift,
+	currentDayOff Weekday,
+	newDayOff Weekday,
+	reason string,
+) ShiftSwapDomainInterface {
+	return &shiftSwapDomain{
+		requestedID:   requestedID,
+		currentShift:  currentShift,
+		newShift:      newShift,
+		currentDayOff: currentDayOff,
+		newDayOff:     newDayOff,
+		reason:        reason,
+		createdAt:     time.Now(),
+	}
+}

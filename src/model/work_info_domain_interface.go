@@ -38,7 +38,7 @@ func NewWorkInfoDomain(
 	}
 }
 
-func NewWorkUpdateDomain(
+func NewWorkInfoUpdateDomain(
 	team Team,
 	position string,
 	defaultShift Shift,

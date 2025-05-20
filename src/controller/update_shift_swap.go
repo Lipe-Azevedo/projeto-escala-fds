@@ -17,8 +17,9 @@ func (sc *shiftSwapControllerInterface) UpdateShiftSwapStatus(c *gin.Context) {
 
 	id := c.Param("id")
 
-	var statusRequest request.ShiftSwapStatusRequest
-	if err := c.ShouldBindJSON(&statusRequest); err != nil {
+	var shiftSwapRequest request.ShiftSwapRequest
+
+	if err := c.ShouldBindJSON(&shiftSwapRequest); err != nil {
 		logger.Error("Error validating status request", err,
 			zap.String("journey", "updateShiftSwapStatus"))
 		restErr := validation.ValidateUserError(err)
@@ -29,8 +30,14 @@ func (sc *shiftSwapControllerInterface) UpdateShiftSwapStatus(c *gin.Context) {
 	approverID := c.GetString("userID") // Obtém do middleware de autenticação
 
 	domain := model.NewShiftSwapUpdateDomain(
-		model.ShiftSwapStatus(statusRequest.Status),
+		shiftSwapRequest.RequestedID,
+		model.Shift(shiftSwapRequest.CurrentShift),
+		model.Shift(shiftSwapRequest.NewShift),
+		model.Weekday(shiftSwapRequest.CurrentDayOff),
+		model.Weekday(shiftSwapRequest.NewDayOff),
+		shiftSwapRequest.Reason,
 	)
+
 	domain.SetApprovedBy(approverID)
 
 	err := sc.service.UpdateShiftSwapServices(id, domain)
