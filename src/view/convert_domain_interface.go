@@ -14,3 +14,16 @@ func ConvertDomainToResponse(
 		Name:  userDomain.GetName(),
 	}
 }
+
+func ConvertWorkInfoDomainToResponse(
+	workInfoDomain model.WorkInfoDomainInterface,
+) response.WorkInfoResponse {
+	return response.WorkInfoResponse{
+		Team:          string(workInfoDomain.GetTeam()),
+		Position:      workInfoDomain.GetPosition(),
+		DefaultShift:  string(workInfoDomain.GetDefaultShift()),
+		WeekdayOff:    string(workInfoDomain.GetWeekdayOff()),
+		WeekendDayOff: string(workInfoDomain.GetWeekendDayOff()),
+		SuperiorID:    workInfoDomain.GetSuperiorID(),
+	}
+}
