@@ -7,7 +7,8 @@ import (
 )
 
 const (
-	MONGODB_USER_DB = "MONGODB_USER_DB"
+	// MONGODB_USERS_COLLECTION_ENV_KEY armazena o nome da variável de ambiente que contém o nome da coleção de usuários.
+	MONGODB_USERS_COLLECTION_ENV_KEY = "MONGODB_USERS_COLLECTION"
 )
 
 func NewUserRepository(

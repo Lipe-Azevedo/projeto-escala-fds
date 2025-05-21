@@ -9,15 +9,15 @@ import (
 )
 
 var (
-	MONGODB_URL     = "MONGODB_URL"
-	MONGODB_USER_DB = "MONGODB_USER_DB"
+	MONGODB_URL_ENV           = "MONGODB_URL"
+	MONGODB_DATABASE_NAME_ENV = "MONGODB_DATABASE" // Renomeado para clareza de MONGODB_USER_DB
 )
 
 func NewMongoDBConnection(
 	ctx context.Context,
 ) (*mongo.Database, error) {
-	mongodb_uri := os.Getenv(MONGODB_URL)
-	mongobd_database := os.Getenv(MONGODB_USER_DB)
+	mongodb_uri := os.Getenv(MONGODB_URL_ENV)
+	mongodb_database_name := os.Getenv(MONGODB_DATABASE_NAME_ENV) // Usar variável renomeada
 
 	client, err := mongo.Connect(
 		ctx,
@@ -30,6 +30,5 @@ func NewMongoDBConnection(
 		return nil, err
 	}
 
-	return client.Database(mongobd_database), nil
-
+	return client.Database(mongodb_database_name), nil
 }

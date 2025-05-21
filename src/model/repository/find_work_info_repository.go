@@ -21,7 +21,7 @@ func (wr *workInfoRepository) FindWorkInfoByUserId(
 		"Init findWorkInfoByID repository.",
 		zap.String("journey", "createUser"))
 
-	collection_name := os.Getenv(MONGODB_WORK_INFO_DB)
+	collection_name := os.Getenv(MONGODB_WORKINFO_COLLECTION_ENV_KEY)
 
 	collection := wr.dataBaseConnection.Collection(collection_name)
 

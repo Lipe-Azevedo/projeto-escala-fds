@@ -22,7 +22,7 @@ func (ur *userRepository) UpdateUser(
 		zap.String("journey", "updateUser"),
 	)
 
-	collection_name := os.Getenv(MONGODB_USER_DB)
+	collection_name := os.Getenv(MONGODB_USERS_COLLECTION_ENV_KEY) // Usa a chave definida em user_repository.go
 	collection := ur.dataBaseConnection.Collection(collection_name)
 
 	value := converter.ConvertDomainToEntity(userDomain)

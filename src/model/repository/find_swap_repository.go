@@ -21,7 +21,7 @@ func (sr *shiftSwapRepository) FindShiftSwapByID(
 	logger.Info("Init findShiftSwapByID repository",
 		zap.String("journey", "findShiftSwapByID"))
 
-	collection_name := os.Getenv(MONGODB_SHIFT_SWAP_DB)
+	collection_name := os.Getenv(MONGODB_SHIFTSWAP_COLLECTION_ENV_KEY)
 	collection := sr.databaseConnection.Collection(collection_name)
 
 	shiftSwapEntity := &entity.ShiftSwapEntity{}

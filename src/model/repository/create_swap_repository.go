@@ -18,7 +18,7 @@ func (sr *shiftSwapRepository) CreateShiftSwap(
 	logger.Info("Init createShiftSwap repository",
 		zap.String("journey", "createShiftSwap"))
 
-	collection_name := os.Getenv(MONGODB_SHIFT_SWAP_DB)
+	collection_name := os.Getenv(MONGODB_SHIFTSWAP_COLLECTION_ENV_KEY)
 	collection := sr.databaseConnection.Collection(collection_name)
 
 	value := converter.ConvertShiftSwapDomainToEntity(shiftSwapDomain)

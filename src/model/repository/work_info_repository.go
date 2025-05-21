@@ -7,7 +7,8 @@ import (
 )
 
 const (
-	MONGODB_WORK_INFO_DB = "MONGODB_WORK_INFO_DB"
+	// MONGODB_WORKINFO_COLLECTION_ENV_KEY armazena o nome da variável de ambiente que contém o nome da coleção work_info.
+	MONGODB_WORKINFO_COLLECTION_ENV_KEY = "MONGODB_WORKINFO_COLLECTION"
 )
 
 func NewWorkInfoRepository(

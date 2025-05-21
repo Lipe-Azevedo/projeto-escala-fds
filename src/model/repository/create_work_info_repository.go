@@ -11,14 +11,14 @@ import (
 	"go.uber.org/zap"
 )
 
-func (wr *workInfoRepository)CreateWorkInfo(
+func (wr *workInfoRepository) CreateWorkInfo(
 	workInfoDomain model.WorkInfoDomainInterface,
 ) (model.WorkInfoDomainInterface, *rest_err.RestErr) {
 	logger.Info(
 		"Init createWorkInfo repository.",
 		zap.String("journey", "createUser"))
 
-	collection_name := os.Getenv(MONGODB_WORK_INFO_DB)
+	collection_name := os.Getenv(MONGODB_WORKINFO_COLLECTION_ENV_KEY)
 
 	collection := wr.dataBaseConnection.Collection(collection_name)
 

@@ -19,7 +19,7 @@ func (ur *userRepository) DeleteUser(
 		zap.String("journey", "deleteUser"),
 	)
 
-	collection_name := os.Getenv(MONGODB_USER_DB)
+	collection_name := os.Getenv(MONGODB_USERS_COLLECTION_ENV_KEY)
 	collection := ur.dataBaseConnection.Collection(collection_name)
 
 	userIdHex, _ := primitive.ObjectIDFromHex(userId)

@@ -19,7 +19,7 @@ func (sr *shiftSwapRepository) UpdateShiftSwap(
 	logger.Info("Init updateShiftSwap repository",
 		zap.String("journey", "updateShiftSwap"))
 
-	collection_name := os.Getenv(MONGODB_SHIFT_SWAP_DB)
+	collection_name := os.Getenv(MONGODB_SHIFTSWAP_COLLECTION_ENV_KEY)
 	collection := sr.databaseConnection.Collection(collection_name)
 
 	value := converter.ConvertShiftSwapDomainToEntity(shiftSwapDomain)

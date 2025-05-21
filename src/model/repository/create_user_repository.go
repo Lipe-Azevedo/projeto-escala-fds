@@ -19,7 +19,7 @@ func (ur *userRepository) CreateUser(
 		"Init createUser repository.",
 		zap.String("journey", "createUser"))
 
-	collection_name := os.Getenv(MONGODB_USER_DB)
+	collection_name := os.Getenv(MONGODB_USERS_COLLECTION_ENV_KEY)
 
 	collection := ur.dataBaseConnection.Collection(collection_name)
 
