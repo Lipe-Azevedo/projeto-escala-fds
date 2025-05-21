@@ -23,6 +23,18 @@ type shiftSwapRepository struct {
 	databaseConnection *mongo.Database
 }
 
+// FindShiftSwapsByStatus implements ShiftSwapRepository.
+// Implementar depois
+func (sr *shiftSwapRepository) FindShiftSwapsByStatus(status model.ShiftSwapStatus) ([]model.ShiftSwapDomainInterface, *rest_err.RestErr) {
+	panic("unimplemented")
+}
+
+// FindShiftSwapsByUserID implements ShiftSwapRepository.
+// Implementar depois
+func (sr *shiftSwapRepository) FindShiftSwapsByUserID(userID string) ([]model.ShiftSwapDomainInterface, *rest_err.RestErr) {
+	panic("unimplemented")
+}
+
 type ShiftSwapRepository interface {
 	CreateShiftSwap(
 		shiftSwapDomain model.ShiftSwapDomainInterface,

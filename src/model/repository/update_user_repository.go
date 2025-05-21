@@ -2,12 +2,12 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/logger"
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err"
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/repository/entity/converter"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.uber.org/zap"
@@ -22,16 +22,48 @@ func (ur *userRepository) UpdateUser(
 		zap.String("journey", "updateUser"),
 	)
 
-	collection_name := os.Getenv(MONGODB_USERS_COLLECTION_ENV_KEY) // Usa a chave definida em user_repository.go
-	collection := ur.dataBaseConnection.Collection(collection_name)
+	collectionNameKey := MONGODB_USERS_COLLECTION_ENV_KEY
+	collectionName := os.Getenv(collectionNameKey)
 
-	value := converter.ConvertDomainToEntity(userDomain)
-	userIdHex, _ := primitive.ObjectIDFromHex(userId)
+	if collectionName == "" {
+		errorMessage := fmt.Sprintf("Environment variable %s not set for users collection name", collectionNameKey)
+		logger.Error(errorMessage, nil, zap.String("journey", "updateUser"))
+		return rest_err.NewInternalServerError("database configuration error: users collection name not set")
+	}
+	collection := ur.dataBaseConnection.Collection(collectionName)
+
+	userIdHex, errHex := primitive.ObjectIDFromHex(userId)
+	if errHex != nil {
+		errorMessage := fmt.Sprintf("Invalid userId format for update: %s", userId)
+		logger.Error(errorMessage, errHex, zap.String("journey", "updateUser"))
+		return rest_err.NewBadRequestError(errorMessage)
+	}
+
+	updateFields := bson.M{}
+
+	if userDomain.GetName() != "" {
+		updateFields["name"] = userDomain.GetName()
+	}
+
+	if userDomain.GetPassword() != "" {
+		updateFields["password"] = userDomain.GetPassword() // Assumindo que já foi criptografada no serviço
+	}
+
+	// Não adicionamos userDomain.GetEmail() ou userDomain.GetUserType() aqui,
+	// pois eles não são parte da atualização de perfil do usuário via NewUserUpdateDomain
+	// e não queremos zerá-los no banco.
+
+	if len(updateFields) == 0 {
+		logger.Info("No fields to update for user.",
+			zap.String("userId", userId),
+			zap.String("journey", "updateUser"))
+		return nil
+	}
 
 	filter := bson.D{{Key: "_id", Value: userIdHex}}
-	update := bson.D{{Key: "$set", Value: value}}
+	update := bson.D{{Key: "$set", Value: updateFields}}
 
-	_, err := collection.UpdateOne(context.Background(), filter, update)
+	result, err := collection.UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		logger.Error(
 			"Error trying to update user.",
@@ -41,9 +73,18 @@ func (ur *userRepository) UpdateUser(
 		return rest_err.NewInternalServerError(err.Error())
 	}
 
+	if result.MatchedCount == 0 {
+		logger.Warn("No user found with the given ID to update",
+			zap.String("userId", userId),
+			zap.String("journey", "updateUser"))
+		return rest_err.NewNotFoundError(fmt.Sprintf("User not found with ID: %s for update", userId))
+	}
+
 	logger.Info(
-		"updateUser repository executed suceeefully.",
+		"UpdateUser repository executed successfully.",
 		zap.String("userId", userId),
+		zap.String("matchedCount", fmt.Sprintf("%d", result.MatchedCount)),
+		zap.String("modifiedCount", fmt.Sprintf("%d", result.ModifiedCount)),
 		zap.String("journey", "updateUser"),
 	)
 	return nil
