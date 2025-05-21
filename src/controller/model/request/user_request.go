@@ -9,6 +9,5 @@ type UserRequest struct {
 
 type UserUpdateRequest struct {
 	Name     string `json:"name" binding:"omitempty,min=4,max=100"`
-	Password string `json:"password" binding:"required,min=6,containsany=!@#$%*"`
-	UserType string `json:"user_type" binding:"omitempty,oneof=colaborador master"`
+	Password string `json:"password" binding:"omitempty,min=6,containsany=!@#$%*"`
 }
