@@ -11,41 +11,38 @@ func (ud *userDomainService) CreateUserServices(
 	userDomain model.UserDomainInterface,
 ) (model.UserDomainInterface, *rest_err.RestErr) {
 	logger.Info(
-		"Init createUser model",
+		"Init CreateUserServices", // Corrigido "Init createUser model" para contexto de serviço
 		zap.String("journey", "createUser"),
 	)
 
-	user, _ := ud.FindUserByEmailServices(userDomain.GetEmail())
-	if user != nil {
-		return nil, rest_err.NewBadRequestError("Email is already regidtred in another account")
+	// Verifica se o e-mail já está registrado
+	existingUser, _ := ud.FindUserByEmailServices(userDomain.GetEmail())
+	if existingUser != nil {
+		logger.Warn("Attempt to create user with already registered email", // Mudado de Error para Warn, pois é um erro de request
+			zap.String("email", userDomain.GetEmail()),
+			zap.String("journey", "createUser"))
+		return nil, rest_err.NewBadRequestError("Email is already registered in another account")
 	}
 
-	// // Validação para usuários master
-	// if userDomain.GetUserType() == model.UserTypeMaster && userDomain.GetWorkInfo() != nil {
-	// 	return nil, rest_err.NewBadRequestError("Master users cannot have work info")
-	// }
+	// Validações específicas do UserType:
+	// Conforme a descrição do projeto, WorkInfo é separado.
+	// Usuários Master não devem ter WorkInfo. Isso é tratado implicitamente pelo fato de WorkInfo ser uma entidade separada
+	// e não vinculada durante a criação do usuário aqui.
+	// Colaboradores terão WorkInfo adicionado por um usuário Master através dos endpoints de WorkInfo.
 
-	// // Validação para colaboradores
-	// if userDomain.GetUserType() == model.UserTypeCollaborator {
-	// 	if userDomain.GetWorkInfo() == nil {
-	// 		return nil, rest_err.NewBadRequestError("Collaborators must have work info")
-	// 	}
-
-	// 	// Validações adicionais do WorkInfo podem ser adicionadas aqui
-	// 	if userDomain.GetWorkInfo().SuperiorID == "" {
-	// 		return nil, rest_err.NewBadRequestError("Collaborators must have a superior")
-	// 	}
-	// }
-
+	// Criptografa a senha antes de salvar
 	userDomain.EncryptPassword()
 
 	userDomainRepository, err := ud.userRepository.CreateUser(userDomain)
 	if err != nil {
-		logger.Error("Error trying to call repository", err, zap.String("journey", "createUser"))
+		// A camada de repositório já loga o erro específico.
+		// Aqui logamos que a chamada ao repositório falhou.
+		logger.Error("Error calling repository to create user", err, // err já é *rest_err.RestErr
+			zap.String("journey", "createUser"))
 		return nil, err
 	}
 
-	logger.Info("CreateUser service executed successfully",
+	logger.Info("CreateUserServices executed successfully",
 		zap.String("userId", userDomainRepository.GetID()),
 		zap.String("journey", "createUser"))
 
