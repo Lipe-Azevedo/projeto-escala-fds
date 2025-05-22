@@ -1,6 +1,6 @@
 package response
 
-type ShiftSwapResponse struct {
+type SwapResponse struct {
 	ID            string  `json:"id"`
 	RequesterID   string  `json:"requester_id"`
 	RequestedID   string  `json:"requested_id"`

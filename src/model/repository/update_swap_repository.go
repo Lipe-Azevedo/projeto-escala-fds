@@ -12,17 +12,17 @@ import (
 	"go.uber.org/zap"
 )
 
-func (sr *shiftSwapRepository) UpdateShiftSwap(
+func (sr *swapRepository) UpdateSwap(
 	id string,
-	shiftSwapDomain model.ShiftSwapDomainInterface,
+	swapDomain model.SwapDomainInterface,
 ) *rest_err.RestErr {
-	logger.Info("Init updateShiftSwap repository",
-		zap.String("journey", "updateShiftSwap"))
+	logger.Info("Init updateSwap repository",
+		zap.String("journey", "updateSwap"))
 
-	collection_name := os.Getenv(MONGODB_SHIFTSWAP_COLLECTION_ENV_KEY)
+	collection_name := os.Getenv(MONGODB_SWAP_COLLECTION_ENV_KEY)
 	collection := sr.databaseConnection.Collection(collection_name)
 
-	value := converter.ConvertShiftSwapDomainToEntity(shiftSwapDomain)
+	value := converter.ConvertSwapDomainToEntity(swapDomain)
 	filter := bson.D{{Key: "_id", Value: id}}
 	update := bson.D{{Key: "$set", Value: value}}
 
@@ -30,13 +30,13 @@ func (sr *shiftSwapRepository) UpdateShiftSwap(
 	if err != nil {
 		logger.Error("Error trying to update shift swap",
 			err,
-			zap.String("journey", "updateShiftSwap"))
+			zap.String("journey", "updateSwap"))
 		return rest_err.NewInternalServerError(err.Error())
 	}
 
-	logger.Info("UpdateShiftSwap repository executed successfully",
-		zap.String("shiftSwapID", id),
-		zap.String("journey", "updateShiftSwap"))
+	logger.Info("UpdateSwap repository executed successfully",
+		zap.String("swapID", id),
+		zap.String("journey", "updateSwap"))
 
 	return nil
 }

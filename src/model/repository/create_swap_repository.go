@@ -12,30 +12,30 @@ import (
 	"go.uber.org/zap"
 )
 
-func (sr *shiftSwapRepository) CreateShiftSwap(
-	shiftSwapDomain model.ShiftSwapDomainInterface,
-) (model.ShiftSwapDomainInterface, *rest_err.RestErr) {
-	logger.Info("Init createShiftSwap repository",
-		zap.String("journey", "createShiftSwap"))
+func (sr *swapRepository) CreateSwap(
+	swapDomain model.SwapDomainInterface,
+) (model.SwapDomainInterface, *rest_err.RestErr) {
+	logger.Info("Init createSwap repository",
+		zap.String("journey", "createSwap"))
 
-	collection_name := os.Getenv(MONGODB_SHIFTSWAP_COLLECTION_ENV_KEY)
+	collection_name := os.Getenv(MONGODB_SWAP_COLLECTION_ENV_KEY)
 	collection := sr.databaseConnection.Collection(collection_name)
 
-	value := converter.ConvertShiftSwapDomainToEntity(shiftSwapDomain)
+	value := converter.ConvertSwapDomainToEntity(swapDomain)
 
 	result, err := collection.InsertOne(context.Background(), value)
 	if err != nil {
 		logger.Error("Error trying to create shift swap",
 			err,
-			zap.String("journey", "createShiftSwap"))
+			zap.String("journey", "createSwap"))
 		return nil, rest_err.NewInternalServerError(err.Error())
 	}
 
 	value.ID = result.InsertedID.(primitive.ObjectID).Hex()
 
-	logger.Info("CreateShiftSwap repository executed successfully",
-		zap.String("shiftSwapID", value.ID),
-		zap.String("journey", "createShiftSwap"))
+	logger.Info("CreateSwap repository executed successfully",
+		zap.String("swapID", value.ID),
+		zap.String("journey", "createSwap"))
 
-	return converter.ConvertShiftSwapEntityToDomain(*value), nil
+	return converter.ConvertSwapEntityToDomain(*value), nil
 }

@@ -31,13 +31,13 @@ func ConvertWorkInfoDomainToResponse(
 	}
 }
 
-func ConvertShiftSwapDomainToResponse(
-	domain model.ShiftSwapDomainInterface,
-) response.ShiftSwapResponse {
+func ConvertSwapDomainToResponse(
+	domain model.SwapDomainInterface,
+) response.SwapResponse {
 	approvedAt := formatTimePointer(domain.GetApprovedAt())
 	approvedBy := domain.GetApprovedBy()
 
-	return response.ShiftSwapResponse{
+	return response.SwapResponse{
 		ID:            domain.GetID(),
 		RequesterID:   domain.GetRequesterID(),
 		RequestedID:   domain.GetRequestedID(),

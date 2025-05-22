@@ -9,17 +9,17 @@ import (
 	"go.uber.org/zap"
 )
 
-func (sc *shiftSwapControllerInterface) FindShiftSwapByID(c *gin.Context) {
-	logger.Info("Init FindShiftSwapByID controller",
-		zap.String("journey", "findShiftSwapByID"))
+func (sc *swapControllerInterface) FindSwapByID(c *gin.Context) {
+	logger.Info("Init FindSwapByID controller",
+		zap.String("journey", "findSwapByID"))
 
 	id := c.Param("id")
 
-	shiftSwapDomain, err := sc.service.FindShiftSwapByIDServices(id)
+	swapDomain, err := sc.service.FindSwapByIDServices(id)
 	if err != nil {
 		c.JSON(err.Code, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, view.ConvertShiftSwapDomainToResponse(shiftSwapDomain))
+	c.JSON(http.StatusOK, view.ConvertSwapDomainToResponse(swapDomain))
 }

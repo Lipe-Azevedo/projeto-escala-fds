@@ -5,20 +5,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ShiftSwapControllerInterface interface {
-	CreateShiftSwap(c *gin.Context)
-	FindShiftSwapByID(c *gin.Context)
-	UpdateShiftSwapStatus(c *gin.Context)
+type SwapControllerInterface interface {
+	CreateSwap(c *gin.Context)
+	FindSwapByID(c *gin.Context)
+	UpdateSwapStatus(c *gin.Context)
 }
 
-type shiftSwapControllerInterface struct {
-	service service.ShiftSwapDomainService
+type swapControllerInterface struct {
+	service service.SwapDomainService
 }
 
-func NewShiftSwapControllerInterface(
-	serviceInterface service.ShiftSwapDomainService,
-) ShiftSwapControllerInterface {
-	return &shiftSwapControllerInterface{
+func NewSwapControllerInterface(
+	serviceInterface service.SwapDomainService,
+) SwapControllerInterface {
+	return &swapControllerInterface{
 		service: serviceInterface,
 	}
 }

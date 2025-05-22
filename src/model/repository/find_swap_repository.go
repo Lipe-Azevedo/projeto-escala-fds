@@ -15,38 +15,38 @@ import (
 	"go.uber.org/zap"
 )
 
-func (sr *shiftSwapRepository) FindShiftSwapByID(
+func (sr *swapRepository) FindSwapByID(
 	id string,
-) (model.ShiftSwapDomainInterface, *rest_err.RestErr) {
-	logger.Info("Init findShiftSwapByID repository",
-		zap.String("journey", "findShiftSwapByID"))
+) (model.SwapDomainInterface, *rest_err.RestErr) {
+	logger.Info("Init findSwapByID repository",
+		zap.String("journey", "findSwapByID"))
 
-	collection_name := os.Getenv(MONGODB_SHIFTSWAP_COLLECTION_ENV_KEY)
+	collection_name := os.Getenv(MONGODB_SWAP_COLLECTION_ENV_KEY)
 	collection := sr.databaseConnection.Collection(collection_name)
 
-	shiftSwapEntity := &entity.ShiftSwapEntity{}
+	SwapEntity := &entity.SwapEntity{}
 
 	filter := bson.D{{Key: "_id", Value: id}}
-	err := collection.FindOne(context.Background(), filter).Decode(shiftSwapEntity)
+	err := collection.FindOne(context.Background(), filter).Decode(SwapEntity)
 
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			errorMessage := fmt.Sprintf("ShiftSwap not found with ID: %s", id)
+			errorMessage := fmt.Sprintf("Swap not found with ID: %s", id)
 			logger.Error(errorMessage,
 				err,
-				zap.String("journey", "findShiftSwapByID"))
+				zap.String("journey", "findSwapByID"))
 			return nil, rest_err.NewNotFoundError(errorMessage)
 		}
 
 		logger.Error("Error trying to find shift swap",
 			err,
-			zap.String("journey", "findShiftSwapByID"))
+			zap.String("journey", "findSwapByID"))
 		return nil, rest_err.NewInternalServerError(err.Error())
 	}
 
-	logger.Info("FindShiftSwapByID repository executed successfully",
-		zap.String("shiftSwapID", id),
-		zap.String("journey", "findShiftSwapByID"))
+	logger.Info("FindSwapByID repository executed successfully",
+		zap.String("SwapID", id),
+		zap.String("journey", "findSwapByID"))
 
-	return converter.ConvertShiftSwapEntityToDomain(*shiftSwapEntity), nil
+	return converter.ConvertSwapEntityToDomain(*SwapEntity), nil
 }

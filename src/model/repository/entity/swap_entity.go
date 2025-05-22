@@ -2,7 +2,7 @@ package entity
 
 import "time"
 
-type ShiftSwapEntity struct {
+type SwapEntity struct {
 	ID            string     `bson:"_id,omitempty"`
 	RequesterID   string     `bson:"requester_id"`
 	RequestedID   string     `bson:"requested_id"`

@@ -12,15 +12,15 @@ import (
 	"go.uber.org/zap"
 )
 
-func (sc *shiftSwapControllerInterface) CreateShiftSwap(c *gin.Context) {
-	logger.Info("Init CreateShiftSwap controller",
-		zap.String("journey", "createShiftSwap"))
+func (sc *swapControllerInterface) CreateSwap(c *gin.Context) {
+	logger.Info("Init CreateSwap controller",
+		zap.String("journey", "createSwap"))
 
-	var shiftSwapRequest request.ShiftSwapRequest
+	var swapRequest request.SwapRequest
 
-	if err := c.ShouldBindJSON(&shiftSwapRequest); err != nil {
+	if err := c.ShouldBindJSON(&swapRequest); err != nil {
 		logger.Error("Error validating shift swap request", err,
-			zap.String("journey", "createShiftSwap"))
+			zap.String("journey", "createSwap"))
 		restErr := validation.ValidateUserError(err)
 		c.JSON(restErr.Code, restErr)
 		return
@@ -28,21 +28,21 @@ func (sc *shiftSwapControllerInterface) CreateShiftSwap(c *gin.Context) {
 
 	requesterID := c.GetString("userID") // Obtém do middleware de autenticação
 
-	domain := model.NewShiftSwapDomain(
+	domain := model.NewSwapDomain(
 		requesterID,
-		shiftSwapRequest.RequestedID,
-		model.Shift(shiftSwapRequest.CurrentShift),
-		model.Shift(shiftSwapRequest.NewShift),
-		model.Weekday(shiftSwapRequest.CurrentDayOff),
-		model.Weekday(shiftSwapRequest.NewDayOff),
-		shiftSwapRequest.Reason,
+		swapRequest.RequestedID,
+		model.Shift(swapRequest.CurrentShift),
+		model.Shift(swapRequest.NewShift),
+		model.Weekday(swapRequest.CurrentDayOff),
+		model.Weekday(swapRequest.NewDayOff),
+		swapRequest.Reason,
 	)
 
-	domainResult, err := sc.service.CreateShiftSwapServices(domain)
+	domainResult, err := sc.service.CreateSwapServices(domain)
 	if err != nil {
 		c.JSON(err.Code, err)
 		return
 	}
 
-	c.JSON(http.StatusCreated, view.ConvertShiftSwapDomainToResponse(domainResult))
+	c.JSON(http.StatusCreated, view.ConvertSwapDomainToResponse(domainResult))
 }

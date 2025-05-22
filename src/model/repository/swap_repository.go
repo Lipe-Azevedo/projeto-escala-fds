@@ -7,55 +7,54 @@ import (
 )
 
 const (
-	// MONGODB_SHIFTSWAP_COLLECTION_ENV_KEY armazena o nome da variável de ambiente que contém o nome da coleção shift_swap.
-	MONGODB_SHIFTSWAP_COLLECTION_ENV_KEY = "MONGODB_SHIFTSWAP_COLLECTION"
+	// MONGODB_SWAP_COLLECTION_ENV_KEY armazena o nome da variável de ambiente que contém o nome da coleção shift_swap.
+	MONGODB_SWAP_COLLECTION_ENV_KEY = "MONGODB_SWAP_COLLECTION"
 )
 
-func NewShiftSwapRepository(
+func NewSwapRepository(
 	database *mongo.Database,
-) ShiftSwapRepository {
-	return &shiftSwapRepository{
+) SwapRepository {
+	return &swapRepository{
 		databaseConnection: database, // Corrigido: era 'database' diretamente
 	}
 }
 
-type shiftSwapRepository struct {
+type swapRepository struct {
 	databaseConnection *mongo.Database
 }
 
-// FindShiftSwapsByStatus implements ShiftSwapRepository.
-// Implementar depois
-func (sr *shiftSwapRepository) FindShiftSwapsByStatus(status model.ShiftSwapStatus) ([]model.ShiftSwapDomainInterface, *rest_err.RestErr) {
+// FindSwapsByUserID implements SwapRepository.
+func (sr *swapRepository) FindSwapsByUserID(userID string) ([]model.SwapDomainInterface, *rest_err.RestErr) {
 	panic("unimplemented")
 }
 
-// FindShiftSwapsByUserID implements ShiftSwapRepository.
+// FindSwapsByStatus implements SwapRepository.
 // Implementar depois
-func (sr *shiftSwapRepository) FindShiftSwapsByUserID(userID string) ([]model.ShiftSwapDomainInterface, *rest_err.RestErr) {
+func (sr *swapRepository) FindSwapsByStatus(status model.SwapStatus) ([]model.SwapDomainInterface, *rest_err.RestErr) {
 	panic("unimplemented")
 }
 
-type ShiftSwapRepository interface {
-	CreateShiftSwap(
-		shiftSwapDomain model.ShiftSwapDomainInterface,
-	) (model.ShiftSwapDomainInterface, *rest_err.RestErr)
+type SwapRepository interface {
+	CreateSwap(
+		swapDomain model.SwapDomainInterface,
+	) (model.SwapDomainInterface, *rest_err.RestErr)
 
-	FindShiftSwapByID(
+	FindSwapByID(
 		id string,
-	) (model.ShiftSwapDomainInterface, *rest_err.RestErr)
+	) (model.SwapDomainInterface, *rest_err.RestErr)
 
 	// Métodos adicionados na Fase 3 para consultar trocas de turno
-	FindShiftSwapsByUserID(
+	FindSwapsByUserID(
 		userID string, // Pode ser solicitante ou solicitado
-	) ([]model.ShiftSwapDomainInterface, *rest_err.RestErr)
+	) ([]model.SwapDomainInterface, *rest_err.RestErr)
 
-	FindShiftSwapsByStatus(
-		status model.ShiftSwapStatus,
-	) ([]model.ShiftSwapDomainInterface, *rest_err.RestErr)
+	FindSwapsByStatus(
+		status model.SwapStatus,
+	) ([]model.SwapDomainInterface, *rest_err.RestErr)
 	// Fim dos novos métodos
 
-	UpdateShiftSwap(
+	UpdateSwap(
 		id string,
-		shiftSwapDomain model.ShiftSwapDomainInterface,
+		swapDomain model.SwapDomainInterface,
 	) *rest_err.RestErr
 }

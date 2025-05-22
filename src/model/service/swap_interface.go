@@ -6,29 +6,29 @@ import (
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/repository"
 )
 
-func NewShiftSwapDomainService(
-	repository repository.ShiftSwapRepository,
-) ShiftSwapDomainService {
-	return &shiftSwapDomainService{
+func NewSwapDomainService(
+	repository repository.SwapRepository,
+) SwapDomainService {
+	return &swapDomainService{
 		repository,
 	}
 }
 
-type shiftSwapDomainService struct {
-	repository repository.ShiftSwapRepository
+type swapDomainService struct {
+	repository repository.SwapRepository
 }
 
-type ShiftSwapDomainService interface {
-	CreateShiftSwapServices(
-		shiftSwapDomain model.ShiftSwapDomainInterface,
-	) (model.ShiftSwapDomainInterface, *rest_err.RestErr)
+type SwapDomainService interface {
+	CreateSwapServices(
+		swapDomain model.SwapDomainInterface,
+	) (model.SwapDomainInterface, *rest_err.RestErr)
 
-	FindShiftSwapByIDServices(
+	FindSwapByIDServices(
 		id string,
-	) (model.ShiftSwapDomainInterface, *rest_err.RestErr)
+	) (model.SwapDomainInterface, *rest_err.RestErr)
 
-	UpdateShiftSwapServices(
+	UpdateSwapServices(
 		id string,
-		shiftSwapDomain model.ShiftSwapDomainInterface,
+		swapDomain model.SwapDomainInterface,
 	) *rest_err.RestErr
 }

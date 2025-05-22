@@ -10,22 +10,35 @@ func InitRoutes(
 	r *gin.RouterGroup,
 	userController controller.UserControllerInterface,
 	workInfoController controller.WorkInfoControllerInterface,
-	shiftSwapController controller.ShiftSwapControllerInterface,
+	swapController controller.SwapControllerInterface, // Usando o nome original da interface
 ) {
 	// Rotas de User
-	r.GET("/getUserByID/:userId", userController.FindUserByID)
-	r.GET("/getUserByEmail/:userEmail", userController.FindUserByEmail)
-	r.POST("/createUser", userController.CreateUser)
-	r.PUT("/updateUser/:userId", userController.UpdateUser)
-	r.DELETE("/deleteUser/:userId", userController.DeleteUser)
+	userRoutes := r.Group("/users")
+	{
+		userRoutes.POST("", userController.CreateUser)
+		userRoutes.GET("", userController.FindAllUsers) // Rota para listar todos os usuários
+		userRoutes.GET("/:userId", userController.FindUserByID)
+		userRoutes.GET("/email/:userEmail", userController.FindUserByEmail)
+		userRoutes.PUT("/:userId", userController.UpdateUser)
+		userRoutes.DELETE("/:userId", userController.DeleteUser)
+	}
 
 	// Rotas de WorkInfo
-	r.GET("/workInfo/:userId", workInfoController.FindWorkInfoByUserId)
-	r.POST("/workInfo/:userId", workInfoController.CreateWorkInfo)
-	r.PUT("/workInfo/:userId", workInfoController.UpdateWorkInfo)
+	workInfoRoutes := r.Group("/users/:userId/work-info")
+	{
+		workInfoRoutes.POST("", workInfoController.CreateWorkInfo)
+		workInfoRoutes.GET("", workInfoController.FindWorkInfoByUserId)
+		workInfoRoutes.PUT("", workInfoController.UpdateWorkInfo)
+	}
 
-	// Rotas de ShiftSwap
-	r.POST("/shift-swap", shiftSwapController.CreateShiftSwap)
-	r.GET("/shift-swap/:id", shiftSwapController.FindShiftSwapByID)
-	r.PUT("/shift-swap/:id/status", shiftSwapController.UpdateShiftSwapStatus)
+	// Rotas de Swap (usando a nomenclatura original, pois a Fase 3 não foi implementada)
+	swapRoutes := r.Group("/shift-swap") // Usando o prefixo original
+	{
+		// Usando os nomes de handler originais do swapController
+		swapRoutes.POST("", swapController.CreateSwap)
+		swapRoutes.GET("/:id", swapController.FindSwapByID)
+		swapRoutes.PUT("/:id/status", swapController.UpdateSwapStatus)
+		// As rotas para FindPendingSwaps e FindSwapsByUser, que usariam a nomenclatura "Swap",
+		// só seriam adicionadas e funcionariam corretamente após a Fase 3.
+	}
 }

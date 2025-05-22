@@ -9,21 +9,22 @@ import (
 
 func initDependencies(
 	database *mongo.Database,
-) (controller.UserControllerInterface, controller.WorkInfoControllerInterface, controller.ShiftSwapControllerInterface) {
+) (controller.UserControllerInterface, controller.WorkInfoControllerInterface, controller.SwapControllerInterface) {
 	// User
 	userRepo := repository.NewUserRepository(database)
-	userService := service.NewUserDomainService(userRepo)
+	userService := service.NewUserDomainService(userRepo) // userService já é criado
 	userController := controller.NewUserControllerInterface(userService)
 
 	// WorkInfo
 	workInfoRepo := repository.NewWorkInfoRepository(database)
-	workInfoService := service.NewWorkInfiDomainService(workInfoRepo)
+	// Passar userService para NewWorkInfoDomainService
+	workInfoService := service.NewWorkInfoDomainService(workInfoRepo, userService) // Corrigido: NewWorkInfiDomainService e adicionado userService
 	workInfoController := controller.NewWorkInfoControllerInterface(workInfoService)
 
-	// ShiftSwap
-	shiftSwapRepo := repository.NewShiftSwapRepository(database)
-	shiftSwapService := service.NewShiftSwapDomainService(shiftSwapRepo)
-	shiftSwapController := controller.NewShiftSwapControllerInterface(shiftSwapService)
+	swapRepo := repository.NewSwapRepository(database)
+	// Se SwapService precisar de userService, ele também seria passado aqui.
+	swapService := service.NewSwapDomainService(swapRepo)
+	swapController := controller.NewSwapControllerInterface(swapService)
 
-	return userController, workInfoController, shiftSwapController
+	return userController, workInfoController, swapController
 }

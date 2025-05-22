@@ -7,27 +7,27 @@ import (
 	"go.uber.org/zap"
 )
 
-func (ss *shiftSwapDomainService) UpdateShiftSwapServices(
+func (ss *swapDomainService) UpdateSwapServices(
 	id string,
-	shiftSwapDomain model.ShiftSwapDomainInterface,
+	swapDomain model.SwapDomainInterface,
 ) *rest_err.RestErr {
-	logger.Info("Init UpdateShiftSwap service",
-		zap.String("journey", "updateShiftSwap"))
+	logger.Info("Init UpdateSwap service",
+		zap.String("journey", "updateSwap"))
 
 	// Validação: Verificar se o usuário que está aprovando é um master/superior
 	// (Implementar conforme necessidade)
 
-	err := ss.repository.UpdateShiftSwap(id, shiftSwapDomain)
+	err := ss.repository.UpdateSwap(id, swapDomain)
 	if err != nil {
 		logger.Error("Error trying to call repository",
 			err,
-			zap.String("journey", "updateShiftSwap"))
+			zap.String("journey", "updateSwap"))
 		return err
 	}
 
-	logger.Info("ShiftSwap updated successfully",
-		zap.String("shiftSwapID", id),
-		zap.String("journey", "updateShiftSwap"))
+	logger.Info("Swap updated successfully",
+		zap.String("swapID", id),
+		zap.String("journey", "updateSwap"))
 
 	return nil
 }

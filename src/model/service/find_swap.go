@@ -7,11 +7,11 @@ import (
 	"go.uber.org/zap"
 )
 
-func (ss *shiftSwapDomainService) FindShiftSwapByIDServices(
+func (ss *swapDomainService) FindSwapByIDServices(
 	id string,
-) (model.ShiftSwapDomainInterface, *rest_err.RestErr) {
-	logger.Info("Init FindShiftSwapByID service",
-		zap.String("journey", "findShiftSwapByID"))
+) (model.SwapDomainInterface, *rest_err.RestErr) {
+	logger.Info("Init FindSwapByID service",
+		zap.String("journey", "findSwapByID"))
 
-	return ss.repository.FindShiftSwapByID(id)
+	return ss.repository.FindSwapByID(id)
 }

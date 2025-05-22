@@ -11,17 +11,17 @@ import (
 	"go.uber.org/zap"
 )
 
-func (sc *shiftSwapControllerInterface) UpdateShiftSwapStatus(c *gin.Context) {
-	logger.Info("Init UpdateShiftSwapStatus controller",
-		zap.String("journey", "updateShiftSwapStatus"))
+func (sc *swapControllerInterface) UpdateSwapStatus(c *gin.Context) {
+	logger.Info("Init UpdateSwapStatus controller",
+		zap.String("journey", "updateSwapStatus"))
 
 	id := c.Param("id")
 
-	var shiftSwapRequest request.ShiftSwapRequest
+	var swapRequest request.SwapRequest
 
-	if err := c.ShouldBindJSON(&shiftSwapRequest); err != nil {
+	if err := c.ShouldBindJSON(&swapRequest); err != nil {
 		logger.Error("Error validating status request", err,
-			zap.String("journey", "updateShiftSwapStatus"))
+			zap.String("journey", "updateSwapStatus"))
 		restErr := validation.ValidateUserError(err)
 		c.JSON(restErr.Code, restErr)
 		return
@@ -29,18 +29,18 @@ func (sc *shiftSwapControllerInterface) UpdateShiftSwapStatus(c *gin.Context) {
 
 	approverID := c.GetString("userID") // Obtém do middleware de autenticação
 
-	domain := model.NewShiftSwapUpdateDomain(
-		shiftSwapRequest.RequestedID,
-		model.Shift(shiftSwapRequest.CurrentShift),
-		model.Shift(shiftSwapRequest.NewShift),
-		model.Weekday(shiftSwapRequest.CurrentDayOff),
-		model.Weekday(shiftSwapRequest.NewDayOff),
-		shiftSwapRequest.Reason,
+	domain := model.NewSwapUpdateDomain(
+		swapRequest.RequestedID,
+		model.Shift(swapRequest.CurrentShift),
+		model.Shift(swapRequest.NewShift),
+		model.Weekday(swapRequest.CurrentDayOff),
+		model.Weekday(swapRequest.NewDayOff),
+		swapRequest.Reason,
 	)
 
 	domain.SetApprovedBy(approverID)
 
-	err := sc.service.UpdateShiftSwapServices(id, domain)
+	err := sc.service.UpdateSwapServices(id, domain)
 	if err != nil {
 		c.JSON(err.Code, err)
 		return

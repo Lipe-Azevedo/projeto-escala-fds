@@ -44,4 +44,7 @@ type UserRepository interface {
 	FindUserByID(
 		id string,
 	) (model.UserDomainInterface, *rest_err.RestErr)
+
+	// Método FindAllUsers adicionado à interface
+	FindAllUsers() ([]model.UserDomainInterface, *rest_err.RestErr)
 }

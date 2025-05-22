@@ -7,26 +7,26 @@ import (
 	"go.uber.org/zap"
 )
 
-func (ss *shiftSwapDomainService) CreateShiftSwapServices(
-	shiftSwapDomain model.ShiftSwapDomainInterface,
-) (model.ShiftSwapDomainInterface, *rest_err.RestErr) {
-	logger.Info("Init CreateShiftSwap service",
-		zap.String("journey", "createShiftSwap"))
+func (ss *swapDomainService) CreateSwapServices(
+	swapDomain model.SwapDomainInterface,
+) (model.SwapDomainInterface, *rest_err.RestErr) {
+	logger.Info("Init CreateSwap service",
+		zap.String("journey", "createSwap"))
 
 	// Validação: Verificar se os usuários envolvidos existem e pertencem à mesma equipe
 	// (Implementar conforme necessidade)
 
-	domainResult, err := ss.repository.CreateShiftSwap(shiftSwapDomain)
+	domainResult, err := ss.repository.CreateSwap(swapDomain)
 	if err != nil {
 		logger.Error("Error trying to call repository",
 			err,
-			zap.String("journey", "createShiftSwap"))
+			zap.String("journey", "createSwap"))
 		return nil, err
 	}
 
-	logger.Info("ShiftSwap created successfully",
-		zap.String("shiftSwapID", domainResult.GetID()),
-		zap.String("journey", "createShiftSwap"))
+	logger.Info("Swap created successfully",
+		zap.String("swapID", domainResult.GetID()),
+		zap.String("journey", "createSwap"))
 
 	return domainResult, nil
 }

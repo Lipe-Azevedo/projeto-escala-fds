@@ -5,10 +5,10 @@ import (
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/repository/entity"
 )
 
-func ConvertShiftSwapEntityToDomain(
-	entity entity.ShiftSwapEntity,
-) model.ShiftSwapDomainInterface {
-	return model.NewShiftSwapDomain(
+func ConvertSwapEntityToDomain(
+	entity entity.SwapEntity,
+) model.SwapDomainInterface {
+	return model.NewSwapDomain(
 		entity.RequesterID,
 		entity.RequestedID,
 		model.Shift(entity.CurrentShift),
@@ -16,5 +16,5 @@ func ConvertShiftSwapEntityToDomain(
 		model.Weekday(entity.CurrentDayOff),
 		model.Weekday(entity.NewDayOff),
 		entity.Reason,
-	).(model.ShiftSwapDomainInterface)
+	).(model.SwapDomainInterface)
 }

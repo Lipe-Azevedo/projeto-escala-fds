@@ -2,7 +2,7 @@ package model
 
 import "time"
 
-type ShiftSwapDomainInterface interface {
+type SwapDomainInterface interface {
 	GetID() string
 	GetRequesterID() string
 	GetRequestedID() string
@@ -10,19 +10,19 @@ type ShiftSwapDomainInterface interface {
 	GetNewShift() Shift
 	GetCurrentDayOff() Weekday
 	GetNewDayOff() Weekday
-	GetStatus() ShiftSwapStatus
+	GetStatus() SwapStatus
 	GetReason() string
 	GetCreatedAt() time.Time
 	GetApprovedAt() *time.Time
 	GetApprovedBy() *string
 
 	SetID(string)
-	SetStatus(ShiftSwapStatus)
+	SetStatus(SwapStatus)
 	SetApprovedAt(time.Time)
 	SetApprovedBy(string)
 }
 
-func NewShiftSwapDomain(
+func NewSwapDomain(
 	requesterID string,
 	requestedID string,
 	currentShift Shift,
@@ -30,8 +30,8 @@ func NewShiftSwapDomain(
 	currentDayOff Weekday,
 	newDayOff Weekday,
 	reason string,
-) ShiftSwapDomainInterface {
-	return &shiftSwapDomain{
+) SwapDomainInterface {
+	return &swapDomain{
 		requesterID:   requesterID,
 		requestedID:   requestedID,
 		currentShift:  currentShift,
@@ -44,15 +44,15 @@ func NewShiftSwapDomain(
 	}
 }
 
-func NewShiftSwapUpdateDomain(
+func NewSwapUpdateDomain(
 	requestedID string,
 	currentShift Shift,
 	newShift Shift,
 	currentDayOff Weekday,
 	newDayOff Weekday,
 	reason string,
-) ShiftSwapDomainInterface {
-	return &shiftSwapDomain{
+) SwapDomainInterface {
+	return &swapDomain{
 		requestedID:   requestedID,
 		currentShift:  currentShift,
 		newShift:      newShift,

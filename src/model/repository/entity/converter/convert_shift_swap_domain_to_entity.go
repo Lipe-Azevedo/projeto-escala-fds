@@ -5,10 +5,10 @@ import (
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/repository/entity"
 )
 
-func ConvertShiftSwapDomainToEntity(
-	domain model.ShiftSwapDomainInterface,
-) *entity.ShiftSwapEntity {
-	return &entity.ShiftSwapEntity{
+func ConvertSwapDomainToEntity(
+	domain model.SwapDomainInterface,
+) *entity.SwapEntity {
+	return &entity.SwapEntity{
 		ID:            domain.GetID(),
 		RequesterID:   domain.GetRequesterID(),
 		RequestedID:   domain.GetRequestedID(),
