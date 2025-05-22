@@ -31,4 +31,7 @@ type UserDomainService interface {
 	UpdateUser(string, model.UserDomainInterface) *rest_err.RestErr
 
 	DeleteUser(string) *rest_err.RestErr
+
+	// Novo método para buscar todos os usuários
+	FindAllUsersServices() ([]model.UserDomainInterface, *rest_err.RestErr)
 }
