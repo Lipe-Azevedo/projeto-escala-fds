@@ -9,6 +9,7 @@ func ConvertWorkInfoDomainToEntity(
 	domain model.WorkInfoDomainInterface,
 ) *entity.WorkInfoEntity {
 	return &entity.WorkInfoEntity{
+		UserID:        domain.GetUserId(),
 		Team:          string(domain.GetTeam()),
 		Position:      domain.GetPosition(),
 		DefaultShift:  string(domain.GetDefaultShift()),

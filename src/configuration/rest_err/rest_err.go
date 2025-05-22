@@ -1,6 +1,8 @@
 package rest_err
 
-import "net/http"
+import (
+	"net/http"
+)
 
 type RestErr struct {
 	Message string   `json:"message"`
@@ -65,5 +67,13 @@ func NewForbiddenError(message string) *RestErr {
 		Message: message,
 		Err:     "forbidden", //403
 		Code:    http.StatusForbidden,
+	}
+}
+
+func NewConflictError(message string) *RestErr {
+	return &RestErr{
+		Message: message,
+		Err:     "conflict", //409
+		Code:    http.StatusConflict,
 	}
 }
