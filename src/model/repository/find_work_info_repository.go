@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/logger"
@@ -15,26 +16,45 @@ import (
 )
 
 func (wr *workInfoRepository) FindWorkInfoByUserId(
-	userId string,
+	userId string, // Este userId é o valor que será usado para buscar pelo campo _id
 ) (model.WorkInfoDomainInterface, *rest_err.RestErr) {
 	logger.Info(
-		"Init findWorkInfoByID repository.",
-		zap.String("journey", "createUser"))
+		"Init findWorkInfoByUserId repository.",
+		zap.String("journey", "findWorkInfoByUserId"),
+		zap.String("userId_as_id_to_find", userId)) // Log do ID que estamos buscando
 
-	collection_name := os.Getenv(MONGODB_WORKINFO_COLLECTION_ENV_KEY)
+	collectionNameKey := MONGODB_WORKINFO_COLLECTION_ENV_KEY
+	collectionName := os.Getenv(collectionNameKey)
 
-	collection := wr.dataBaseConnection.Collection(collection_name)
+	if collectionName == "" {
+		errorMessage := fmt.Sprintf("Environment variable %s not set for work_info collection name", collectionNameKey)
+		logger.Error(errorMessage, nil, zap.String("journey", "findWorkInfoByUserId"))
+		return nil, rest_err.NewInternalServerError("database configuration error: work_info collection name not set")
+	}
+	collection := wr.dataBaseConnection.Collection(collectionName)
 
 	workInfoEntity := &entity.WorkInfoEntity{}
-	filter := bson.M{"user_id": userId}
+	// O filtro AGORA É PELO CAMPO "_id", pois UserID na entidade está mapeado para _id.
+	filter := bson.M{"_id": userId}
 
 	err := collection.FindOne(context.Background(), filter).Decode(workInfoEntity)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return nil, rest_err.NewNotFoundError("Work info not found")
+			logger.Warn("Work info not found in repository for _id (user ID)",
+				zap.String("userId_as_id", userId),
+				zap.String("journey", "findWorkInfoByUserId"))
+			// É importante que esta mensagem seja clara, pois ela será propagada.
+			return nil, rest_err.NewNotFoundError(fmt.Sprintf("Work info not found for user ID: %s", userId))
 		}
+		logger.Error("Error finding work info by _id (user ID) in repository", err,
+			zap.String("userId_as_id", userId),
+			zap.String("journey", "findWorkInfoByUserId"))
 		return nil, rest_err.NewInternalServerError(err.Error())
 	}
+
+	logger.Info("FindWorkInfoByUserId repository executed successfully (found by _id)",
+		zap.String("userID_found", workInfoEntity.UserID), // UserID na entidade é o _id
+		zap.String("journey", "findWorkInfoByUserId"))
 
 	return converter.ConvertWorkInfoEntityToDomain(*workInfoEntity), nil
 }

@@ -3,72 +3,111 @@ package service
 import (
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/logger"
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err"
+	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/model/request"
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model"
 	"go.uber.org/zap"
 )
 
 func (wd *workInfoDomainService) UpdateWorkInfoServices(
-	userId string, // ID do usuário cujo WorkInfo está sendo atualizado
-	workInfoDomain model.WorkInfoDomainInterface,
-) *rest_err.RestErr {
-	logger.Info("Init UpdateWorkInfoServices", zap.String("journey", "updateWorkInfo")) // Nome da função corrigido no log
+	userId string,
+	updateRequest request.WorkInfoUpdateRequest,
+) (model.WorkInfoDomainInterface, *rest_err.RestErr) {
+	logger.Info("Init UpdateWorkInfoServices (handling partial update via PUT)",
+		zap.String("journey", "updateWorkInfo"),
+		zap.String("userID", userId))
 
-	// Validação 1: Verificar se o usuário para o qual o WorkInfo está sendo atualizado existe.
-	// Embora o repositório retorne NotFound se o WorkInfo não existir (baseado no userId),
-	// é uma boa prática garantir que o próprio usuário exista primeiro.
 	_, errUser := wd.userDomainService.FindUserByIDServices(userId)
 	if errUser != nil {
 		logger.Error("User for WorkInfo update not found", errUser,
 			zap.String("journey", "updateWorkInfo"),
 			zap.String("userID", userId))
 		if errUser.Code == 404 {
-			return rest_err.NewBadRequestError("User for WorkInfo update does not exist")
+			return nil, rest_err.NewBadRequestError("User for WorkInfo update does not exist")
 		}
-		return errUser
+		return nil, errUser
 	}
 
-	// Validação 2: Verificar se o SuperiorID (se fornecido e não vazio no domain de atualização) é válido
-	superiorID := workInfoDomain.GetSuperiorID()
-	if superiorID != "" {
-		_, errSuperior := wd.userDomainService.FindUserByIDServices(superiorID)
-		if errSuperior != nil {
-			logger.Error("Superior user (for update) not found", errSuperior,
-				zap.String("journey", "updateWorkInfo"),
-				zap.String("superiorID", superiorID))
-			if errSuperior.Code == 404 {
-				return rest_err.NewBadRequestError("Superior user specified in WorkInfo update does not exist")
-			}
-			return errSuperior
-		}
-	}
-
-	// Validação 3: Garantir que o workInfoDomain.GetUserId() (se presente e usado internamente pelo domain)
-	// corresponda ao userId do parâmetro, para evitar inconsistências.
-	// No seu NewWorkInfoDomain, o UserID é o primeiro parâmetro.
-	// E o WorkInfoDomain passado para UpdateWorkInfoServices é construído com o userId da rota.
-	// Então workInfoDomain.GetUserId() deve ser igual a userId.
-	if workInfoDomain.GetUserId() != userId {
-		logger.Error("Mismatch between route userId and workInfoDomain's userId during update", nil,
-			zap.String("journey", "updateWorkInfo"),
-			zap.String("routeUserId", userId),
-			zap.String("domainUserId", workInfoDomain.GetUserId()))
-		return rest_err.NewBadRequestError("User ID mismatch in update request")
-	}
-
-	err := wd.workInfoRepository.UpdateWorkInfo(userId, workInfoDomain)
+	// Esta é a chamada crucial que está resultando em "Work info not found"
+	existingWorkInfoDomain, err := wd.workInfoRepository.FindWorkInfoByUserId(userId)
 	if err != nil {
-		logger.Error(
-			"Error trying to call repository for WorkInfo update.", // "tyring to call repository."
-			err,
+		// O log de erro já acontece no repositório se não encontrado.
+		// O serviço apenas repassa o erro.
+		// Se err for *rest_err.RestErr com Code 404, ele será retornado como está.
+		logger.Error("WorkInfo not found by service for update, or other repository error", err,
 			zap.String("journey", "updateWorkInfo"),
-		)
-		return err
+			zap.String("userID", userId))
+		return nil, err
 	}
 
-	logger.Info(
-		"UpdateWorkInfoServices executed successfully.", // Nome da função corrigido no log
+	fieldsUpdated := false
+
+	if updateRequest.Team != nil {
+		if model.Team(*updateRequest.Team) != existingWorkInfoDomain.GetTeam() {
+			existingWorkInfoDomain.SetTeam(model.Team(*updateRequest.Team))
+			fieldsUpdated = true
+		}
+	}
+	if updateRequest.Position != nil {
+		if *updateRequest.Position != existingWorkInfoDomain.GetPosition() {
+			existingWorkInfoDomain.SetPosition(*updateRequest.Position)
+			fieldsUpdated = true
+		}
+	}
+	if updateRequest.DefaultShift != nil {
+		if model.Shift(*updateRequest.DefaultShift) != existingWorkInfoDomain.GetDefaultShift() {
+			existingWorkInfoDomain.SetDefaultShift(model.Shift(*updateRequest.DefaultShift))
+			fieldsUpdated = true
+		}
+	}
+	if updateRequest.WeekdayOff != nil {
+		if model.Weekday(*updateRequest.WeekdayOff) != existingWorkInfoDomain.GetWeekdayOff() {
+			existingWorkInfoDomain.SetWeekdayOff(model.Weekday(*updateRequest.WeekdayOff))
+			fieldsUpdated = true
+		}
+	}
+	if updateRequest.WeekendDayOff != nil {
+		if model.WeekendDayOff(*updateRequest.WeekendDayOff) != existingWorkInfoDomain.GetWeekendDayOff() {
+			existingWorkInfoDomain.SetWeekendDayOff(model.WeekendDayOff(*updateRequest.WeekendDayOff))
+			fieldsUpdated = true
+		}
+	}
+	if updateRequest.SuperiorID != nil {
+		if *updateRequest.SuperiorID != "" {
+			_, errSuperior := wd.userDomainService.FindUserByIDServices(*updateRequest.SuperiorID)
+			if errSuperior != nil {
+				logger.Error("New Superior user (for update) not found", errSuperior,
+					zap.String("journey", "updateWorkInfo"),
+					zap.String("newSuperiorID", *updateRequest.SuperiorID))
+				if errSuperior.Code == 404 {
+					return nil, rest_err.NewBadRequestError("New Superior user specified in WorkInfo update does not exist")
+				}
+				return nil, errSuperior
+			}
+		}
+		if *updateRequest.SuperiorID != existingWorkInfoDomain.GetSuperiorID() {
+			existingWorkInfoDomain.SetSuperiorID(*updateRequest.SuperiorID)
+			fieldsUpdated = true
+		}
+	}
+
+	if !fieldsUpdated {
+		logger.Info("No actual changes detected for WorkInfo update.",
+			zap.String("journey", "updateWorkInfo"),
+			zap.String("userID", userId))
+		return existingWorkInfoDomain, nil
+	}
+
+	repoErr := wd.workInfoRepository.UpdateWorkInfo(userId, existingWorkInfoDomain)
+	if repoErr != nil {
+		logger.Error("Error updating WorkInfo in repository", repoErr,
+			zap.String("journey", "updateWorkInfo"),
+			zap.String("userID", userId))
+		return nil, repoErr
+	}
+
+	logger.Info("UpdateWorkInfoServices (handling partial update via PUT) executed successfully.",
 		zap.String("userId", userId),
 		zap.String("journey", "updateWorkInfo"),
 	)
-	return nil
+	return existingWorkInfoDomain, nil
 }

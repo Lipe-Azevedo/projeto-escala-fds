@@ -2,37 +2,40 @@ package service
 
 import (
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err"
+	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/model/request" // Importação para request.WorkInfoUpdateRequest
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model"
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/repository"
 )
 
-// NewWorkInfoDomainService (alterado para NewWorkInfiDomainService no seu código original, corrigindo para Info)
-func NewWorkInfoDomainService( // Corrigido: NewWorkInfiDomainService para NewWorkInfoDomainService
+func NewWorkInfoDomainService(
 	workInfoRepository repository.WorkInfoRepository,
-	userDomainService UserDomainService, // Adicionada dependência
+	userDomainService UserDomainService,
 ) WorkInfoDomainService {
 	return &workInfoDomainService{
 		workInfoRepository: workInfoRepository,
-		userDomainService:  userDomainService, // Adicionada atribuição
+		userDomainService:  userDomainService,
 	}
 }
 
 type workInfoDomainService struct {
 	workInfoRepository repository.WorkInfoRepository
-	userDomainService  UserDomainService // Adicionado campo
+	userDomainService  UserDomainService
 }
 
 type WorkInfoDomainService interface {
 	CreateWorkInfoServices(
-		workInfoDomain model.WorkInfoDomainInterface,
+		workInfoDomain model.WorkInfoDomainInterface, // Para criação, usa WorkInfoRequest (controller converte para domain)
 	) (model.WorkInfoDomainInterface, *rest_err.RestErr)
 
 	FindWorkInfoByUserIdServices(
 		userId string,
 	) (model.WorkInfoDomainInterface, *rest_err.RestErr)
 
+	// UpdateWorkInfoServices agora lida com atualizações parciais via PUT
+	// e recebe request.WorkInfoUpdateRequest.
+	// Retorna o domínio atualizado.
 	UpdateWorkInfoServices(
 		userId string,
-		workInfoDomain model.WorkInfoDomainInterface,
-	) *rest_err.RestErr
+		updateRequest request.WorkInfoUpdateRequest, // Alterado para request.WorkInfoUpdateRequest
+	) (model.WorkInfoDomainInterface, *rest_err.RestErr) // Alterado para retornar domain e erro
 }

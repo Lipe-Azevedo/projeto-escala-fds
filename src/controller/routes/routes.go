@@ -1,4 +1,3 @@
-// src/controller/routes/routes.go
 package routes
 
 import (
@@ -10,13 +9,13 @@ func InitRoutes(
 	r *gin.RouterGroup,
 	userController controller.UserControllerInterface,
 	workInfoController controller.WorkInfoControllerInterface,
-	swapController controller.SwapControllerInterface, // Usando o nome original da interface
+	swapController controller.SwapControllerInterface, // Mantendo original até Fase 3 de Swap
 ) {
 	// Rotas de User
 	userRoutes := r.Group("/users")
 	{
 		userRoutes.POST("", userController.CreateUser)
-		userRoutes.GET("", userController.FindAllUsers) // Rota para listar todos os usuários
+		userRoutes.GET("", userController.FindAllUsers)
 		userRoutes.GET("/:userId", userController.FindUserByID)
 		userRoutes.GET("/email/:userEmail", userController.FindUserByEmail)
 		userRoutes.PUT("/:userId", userController.UpdateUser)
@@ -26,19 +25,16 @@ func InitRoutes(
 	// Rotas de WorkInfo
 	workInfoRoutes := r.Group("/users/:userId/work-info")
 	{
-		workInfoRoutes.POST("", workInfoController.CreateWorkInfo)
+		workInfoRoutes.POST("", workInfoController.CreateWorkInfo) // Criação, usa WorkInfoRequest (campos string obrigatórios)
 		workInfoRoutes.GET("", workInfoController.FindWorkInfoByUserId)
-		workInfoRoutes.PUT("", workInfoController.UpdateWorkInfo)
+		workInfoRoutes.PUT("", workInfoController.UpdateWorkInfo) // Atualização (parcial), usa WorkInfoUpdateRequest (campos *string opcionais)
 	}
 
-	// Rotas de Swap (usando a nomenclatura original, pois a Fase 3 não foi implementada)
-	swapRoutes := r.Group("/shift-swap") // Usando o prefixo original
+	// Rotas de Swap (mantendo nomenclatura original)
+	swapRoutes := r.Group("/shift-swap")
 	{
-		// Usando os nomes de handler originais do swapController
 		swapRoutes.POST("", swapController.CreateSwap)
 		swapRoutes.GET("/:id", swapController.FindSwapByID)
 		swapRoutes.PUT("/:id/status", swapController.UpdateSwapStatus)
-		// As rotas para FindPendingSwaps e FindSwapsByUser, que usariam a nomenclatura "Swap",
-		// só seriam adicionadas e funcionariam corretamente após a Fase 3.
 	}
 }

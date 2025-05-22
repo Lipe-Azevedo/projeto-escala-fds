@@ -9,7 +9,7 @@ import (
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err"
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model"
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/repository/entity/converter"
-	"go.mongodb.org/mongo-driver/mongo" // Adicionar import para mongo.WriteException
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
 )
 
@@ -31,17 +31,14 @@ func (wr *workInfoRepository) CreateWorkInfo(
 	collection := wr.dataBaseConnection.Collection(collectionName)
 
 	value := converter.ConvertWorkInfoDomainToEntity(workInfoDomain)
-	// Agora, value.UserID (que tem a tag `bson:"_id"`) contém o userId do domain.
-	// Ao fazer InsertOne, o MongoDB usará o valor de value.UserID como o _id do documento.
+	// 'value' agora tem UserID (com tag bson:"_id") preenchido com workInfoDomain.GetUserId()
 
 	_, err := collection.InsertOne(context.Background(), value)
 	if err != nil {
-		// Verifica se o erro é uma exceção de escrita do MongoDB
 		if writeException, ok := err.(mongo.WriteException); ok {
 			for _, writeError := range writeException.WriteErrors {
-				// O código 11000 indica um erro de chave duplicada
-				if writeError.Code == 11000 {
-					errorMessage := fmt.Sprintf("WorkInfo for user ID %s already exists", value.UserID)
+				if writeError.Code == 11000 { // Erro de chave duplicada
+					errorMessage := fmt.Sprintf("WorkInfo for user ID %s already exists (duplicate _id)", value.UserID)
 					logger.Error(errorMessage, err,
 						zap.String("journey", "createWorkInfo"),
 						zap.String("userID", value.UserID))
@@ -49,15 +46,14 @@ func (wr *workInfoRepository) CreateWorkInfo(
 				}
 			}
 		}
-		// Para outros erros de InsertOne
 		logger.Error("Error creating work info in repository", err,
 			zap.String("journey", "createWorkInfo"),
-			zap.String("userID", value.UserID)) // Adicionado UserID ao log de erro genérico
+			zap.String("userID", value.UserID))
 		return nil, rest_err.NewInternalServerError(err.Error())
 	}
 
 	logger.Info("CreateWorkInfo repository executed successfully",
-		zap.String("userID", workInfoDomain.GetUserId()),
+		zap.String("userID", workInfoDomain.GetUserId()), // O UserID do domain é o _id
 		zap.String("journey", "createWorkInfo"))
 
 	return workInfoDomain, nil
