@@ -4,46 +4,52 @@ import (
 	"net/http"
 
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/logger"
+	// "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model"          // Descomentar se usar model.UserTypeMaster
+	// "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err" // Descomentar se usar rest_err.NewForbiddenError
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/view"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	// Para controle de acesso mais fino, você poderia importar:
-	// "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model"
-	// "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err"
 )
 
 func (wc *workInfoControllerInterface) FindWorkInfoByUserId(c *gin.Context) {
 	logger.Info("Init findWorkInfoByUserId controller",
 		zap.String("journey", "findWorkInfoByUserId"))
 
-	targetUserId := c.Param("userId") // ID do usuário cuja WorkInfo está sendo buscada
+	targetUserId := c.Param("userId")
 
-	// Possível Lógica de Permissão (Exemplo - pode ser adaptada ou removida):
-	// actingUserID := c.GetString("userID")      // ID do usuário autenticado
-	// actingUserType := c.GetString("userType") // Tipo do usuário autenticado
-	//
-	// if model.UserType(actingUserType) != model.UserTypeMaster && actingUserID != targetUserId {
-	// 	logger.Warn("Forbidden attempt to find work info for another user by non-master user",
-	// 		zap.String("journey", "findWorkInfoByUserId"),
-	// 		zap.String("actingUserID", actingUserID),
-	// 		zap.String("targetUserID", targetUserId))
-	// 	restErr := rest_err.NewForbiddenError("You do not have permission to view this information")
-	// 	c.JSON(restErr.Code, restErr)
-	// 	return
-	// }
+	// TODO: Reativar/Confirmar verificação de permissão após implementar JWT/AuthN.
+	// A lógica abaixo é um EXEMPLO de como você poderia restringir o acesso.
+	// Se JWT não estiver implementado, c.GetString("userType") retornará ""
+	// e a condição abaixo (se descomentada) pode não funcionar como esperado.
+	// Comente o bloco if para testes sem JWT ou ajuste conforme necessário.
+
+	/* // Exemplo de Lógica de Permissão (permanece comentado):
+	actingUserID := c.GetString("userID")
+	actingUserType := c.GetString("userType")
+
+	if model.UserType(actingUserType) != model.UserTypeMaster && actingUserID != targetUserId {
+		logger.Warn("Forbidden attempt to find work info for another user by non-master user (or auth not implemented)",
+			zap.String("journey", "findWorkInfoByUserId"),
+			zap.String("actingUserID", actingUserID),
+			zap.String("targetUserID", targetUserId))
+		restErr := rest_err.NewForbiddenError("You do not have permission to view this information or user type not identified")
+		c.JSON(restErr.Code, restErr)
+		return
+	}
+	*/
 
 	workInfoDomain, err := wc.service.FindWorkInfoByUserIdServices(targetUserId)
 	if err != nil {
 		logger.Error("Error trying to call findWorkInfoByUserId service",
-			err, // err já é *rest_err.RestErr
+			err,
 			zap.String("journey", "findWorkInfoByUserId"),
-			zap.String("targetUserIdToFind", targetUserId)) // Log específico do ID que falhou
+			zap.String("targetUserIdToFind", targetUserId))
 		c.JSON(err.Code, err)
 		return
 	}
 
 	logger.Info("FindWorkInfoByUserId controller executed successfully",
-		zap.String("foundUserId", targetUserId), // Log com o ID buscado
+		zap.String("foundUserId", targetUserId),
 		zap.String("journey", "findWorkInfoByUserId"))
 
 	c.JSON(http.StatusOK, view.ConvertWorkInfoDomainToResponse(workInfoDomain))
