@@ -7,53 +7,44 @@ import (
 )
 
 const (
-	// MONGODB_SWAP_COLLECTION_ENV_KEY armazena o nome da variável de ambiente que contém o nome da coleção shift_swap.
-	MONGODB_SWAP_COLLECTION_ENV_KEY = "MONGODB_SWAP_COLLECTION"
+	// MONGODB_SWAPS_COLLECTION_ENV_KEY armazena o nome da variável de ambiente que contém o nome da coleção de trocas.
+	MONGODB_SWAPS_COLLECTION_ENV_KEY = "MONGODB_SWAPS_COLLECTION"
 )
 
+// NewSwapRepository cria uma nova instância de SwapRepository.
 func NewSwapRepository(
 	database *mongo.Database,
 ) SwapRepository {
 	return &swapRepository{
-		databaseConnection: database, // Corrigido: era 'database' diretamente
+		databaseConnection: database,
 	}
 }
 
+// swapRepository é a implementação da interface SwapRepository.
+// Seus métodos são definidos em arquivos separados (ex: create_swap_repository.go, find_swap_repository.go, etc.).
 type swapRepository struct {
 	databaseConnection *mongo.Database
 }
 
-// FindSwapsByUserID implements SwapRepository.
-func (sr *swapRepository) FindSwapsByUserID(userID string) ([]model.SwapDomainInterface, *rest_err.RestErr) {
-	panic("unimplemented")
-}
-
-// FindSwapsByStatus implements SwapRepository.
-// Implementar depois
-func (sr *swapRepository) FindSwapsByStatus(status model.SwapStatus) ([]model.SwapDomainInterface, *rest_err.RestErr) {
-	panic("unimplemented")
-}
-
+// SwapRepository define a interface para o repositório de trocas.
 type SwapRepository interface {
-	CreateSwap(
+	CreateSwap( // Implementação, por exemplo, em create_swap_repository.go
 		swapDomain model.SwapDomainInterface,
 	) (model.SwapDomainInterface, *rest_err.RestErr)
 
-	FindSwapByID(
+	FindSwapByID( // Implementação, por exemplo, em find_swap_repository.go
 		id string,
 	) (model.SwapDomainInterface, *rest_err.RestErr)
 
-	// Métodos adicionados na Fase 3 para consultar trocas de turno
-	FindSwapsByUserID(
-		userID string, // Pode ser solicitante ou solicitado
+	FindSwapsByUserID( // Implementação, por exemplo, em find_swap_repository.go
+		userID string,
 	) ([]model.SwapDomainInterface, *rest_err.RestErr)
 
-	FindSwapsByStatus(
+	FindSwapsByStatus( // Implementação, por exemplo, em find_swap_repository.go
 		status model.SwapStatus,
 	) ([]model.SwapDomainInterface, *rest_err.RestErr)
-	// Fim dos novos métodos
 
-	UpdateSwap(
+	UpdateSwap( // Implementação, por exemplo, em update_swap_repository.go
 		id string,
 		swapDomain model.SwapDomainInterface,
 	) *rest_err.RestErr
