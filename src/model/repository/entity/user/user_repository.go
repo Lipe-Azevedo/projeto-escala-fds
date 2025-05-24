@@ -1,4 +1,4 @@
-package repository
+package user
 
 import (
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err"
@@ -11,18 +11,8 @@ const (
 	MONGODB_USERS_COLLECTION_ENV_KEY = "MONGODB_USERS_COLLECTION"
 )
 
-func NewUserRepository(
-	database *mongo.Database,
-) UserRepository {
-	return &userRepository{
-		database,
-	}
-}
-
-type userRepository struct {
-	dataBaseConnection *mongo.Database
-}
-
+// UserRepository define a interface para o repositório de usuários.
+// As implementações dos métodos estarão em arquivos separados neste pacote.
 type UserRepository interface {
 	CreateUser(
 		userDomain model.UserDomainInterface,
@@ -45,6 +35,20 @@ type UserRepository interface {
 		id string,
 	) (model.UserDomainInterface, *rest_err.RestErr)
 
-	// Método FindAllUsers adicionado à interface
 	FindAllUsers() ([]model.UserDomainInterface, *rest_err.RestErr)
+}
+
+// userRepository é a implementação da interface UserRepository.
+// O campo databaseConnection é usado pelos métodos definidos em outros arquivos deste pacote.
+type userRepository struct {
+	databaseConnection *mongo.Database
+}
+
+// NewUserRepository cria uma nova instância de UserRepository.
+func NewUserRepository(
+	database *mongo.Database,
+) UserRepository {
+	return &userRepository{
+		databaseConnection: database,
+	}
 }
