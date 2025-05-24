@@ -1,4 +1,4 @@
-package service
+package user
 
 import (
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/logger"
@@ -11,33 +11,25 @@ func (ud *userDomainService) CreateUserServices(
 	userDomain model.UserDomainInterface,
 ) (model.UserDomainInterface, *rest_err.RestErr) {
 	logger.Info(
-		"Init CreateUserServices", // Corrigido "Init createUser model" para contexto de serviço
+		"Init CreateUserServices",
 		zap.String("journey", "createUser"),
-	)
+		zap.String("email", userDomain.GetEmail()))
 
 	// Verifica se o e-mail já está registrado
+	// Esta chamada usará o método FindUserByEmailServices do mesmo serviço (ud).
 	existingUser, _ := ud.FindUserByEmailServices(userDomain.GetEmail())
 	if existingUser != nil {
-		logger.Warn("Attempt to create user with already registered email", // Mudado de Error para Warn, pois é um erro de request
+		logger.Warn("Attempt to create user with already registered email",
 			zap.String("email", userDomain.GetEmail()),
 			zap.String("journey", "createUser"))
-		return nil, rest_err.NewBadRequestError("Email is already registered in another account")
+		return nil, rest_err.NewConflictError("Email is already registered in another account.") // Alterado para ConflictError
 	}
 
-	// Validações específicas do UserType:
-	// Conforme a descrição do projeto, WorkInfo é separado.
-	// Usuários Master não devem ter WorkInfo. Isso é tratado implicitamente pelo fato de WorkInfo ser uma entidade separada
-	// e não vinculada durante a criação do usuário aqui.
-	// Colaboradores terão WorkInfo adicionado por um usuário Master através dos endpoints de WorkInfo.
-
-	// Criptografa a senha antes de salvar
 	userDomain.EncryptPassword()
 
 	userDomainRepository, err := ud.userRepository.CreateUser(userDomain)
 	if err != nil {
-		// A camada de repositório já loga o erro específico.
-		// Aqui logamos que a chamada ao repositório falhou.
-		logger.Error("Error calling repository to create user", err, // err já é *rest_err.RestErr
+		logger.Error("Error calling repository to create user", err,
 			zap.String("journey", "createUser"))
 		return nil, err
 	}
