@@ -3,21 +3,29 @@ package view
 import (
 	"time"
 
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/model/response"
+	// Import para o novo local do UserResponse
+	user_response_dto "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/user/response"
+	// Import para os responses de WorkInfo e Swap (ainda dos locais antigos, serão ajustados)
+	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/model/response" // Mantido para WorkInfoResponse e SwapResponse por enquanto
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model"
 )
 
-func ConvertDomainToResponse(
+// ConvertUserDomainToResponse converte um UserDomainInterface para UserResponse.
+// Nome da função alterado para maior clareza.
+func ConvertUserDomainToResponse( // <<< RENOMEADO AQUI
 	userDomain model.UserDomainInterface,
-) response.UserResponse {
-	return response.UserResponse{
+) user_response_dto.UserResponse {
+	return user_response_dto.UserResponse{
 		ID:       userDomain.GetID(),
 		Email:    userDomain.GetEmail(),
 		Name:     userDomain.GetName(),
 		UserType: string(userDomain.GetUserType()),
+		// WorkInfo: // Será descomentado e populado quando WorkInfoResponse for reorganizado
 	}
 }
 
+// ConvertWorkInfoDomainToResponse permanece o mesmo por enquanto, usando o response global.
+// Será ajustado quando WorkInfo for reorganizado.
 func ConvertWorkInfoDomainToResponse(
 	workInfoDomain model.WorkInfoDomainInterface,
 ) response.WorkInfoResponse {
@@ -32,6 +40,8 @@ func ConvertWorkInfoDomainToResponse(
 	}
 }
 
+// ConvertSwapDomainToResponse permanece o mesmo por enquanto, usando o response global.
+// Será ajustado quando Swap for reorganizado.
 func ConvertSwapDomainToResponse(
 	domain model.SwapDomainInterface,
 ) response.SwapResponse {

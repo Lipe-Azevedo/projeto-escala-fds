@@ -7,8 +7,8 @@ import (
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err"
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/validation"
 
-	// Ajustar o import para o request específico do usuário
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/user/request"
+	// Usando o alias user_request_dto para o pacote de request do usuário
+	user_request_dto "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/user/request"
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -20,7 +20,7 @@ func (uc *userControllerInterface) UpdateUser(c *gin.Context) {
 		"Init UpdateUser controller",
 		zap.String("journey", "updateUser"),
 	)
-	var userRequest request.UserUpdateRequest // Usando request do pacote user/request
+	var userRequest user_request_dto.UserUpdateRequest // <<< Usando o alias aqui
 	if err := c.ShouldBindJSON(&userRequest); err != nil {
 		logger.Error(
 			"Error trying to validate user info for update",
@@ -38,29 +38,15 @@ func (uc *userControllerInterface) UpdateUser(c *gin.Context) {
 			zap.String("userId", userId))
 		restErr := rest_err.NewBadRequestError("Invalid userId format, must be a hex value")
 		c.JSON(restErr.Code, restErr)
-		return // Adicionado return
+		return
 	}
 
-	// TODO: (Pós-JWT) Lógica de Permissão:
-	// - Master pode atualizar qualquer campo (exceto UserType, Email).
-	// - Colaborador só pode atualizar seu próprio Name e Password.
-	// actingUserID := c.GetString("userID")
-	// actingUserType := c.GetString("userType")
-	// if model.UserType(actingUserType) != model.UserTypeMaster && actingUserID != userId {
-	//     restErr := rest_err.NewForbiddenError("You cannot update another user's information.")
-	//     c.JSON(restErr.Code, restErr)
-	//     return
-	// }
-	// Se for colaborador atualizando a si mesmo, ok.
-	// Se for master, ok.
-
-	// O UserUpdateRequest só tem Name e Password.
 	domain := model.NewUserUpdateDomain(
-		userRequest.Name,     // Será string vazia se não fornecido (omitempty)
-		userRequest.Password, // Será string vazia se não fornecido (omitempty)
+		userRequest.Name,
+		userRequest.Password,
 	)
 
-	serviceErr := uc.service.UpdateUserServices(userId, domain) // Chamando UpdateUserServices
+	serviceErr := uc.service.UpdateUserServices(userId, domain)
 	if serviceErr != nil {
 		logger.Error(
 			"Failed to call user update service",

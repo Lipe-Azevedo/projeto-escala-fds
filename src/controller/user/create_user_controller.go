@@ -6,10 +6,10 @@ import (
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/logger"
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/validation"
 
-	// Ajustar o import para o request específico do usuário
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/user/request"
+	// Usando o alias user_request_dto para o pacote de request do usuário
+	user_request_dto "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/user/request"
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/view" // View ainda é global
+	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/view"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -17,7 +17,7 @@ import (
 func (uc *userControllerInterface) CreateUser(c *gin.Context) {
 	logger.Info("Init CreateUser controller", zap.String("journey", "createUser"))
 
-	var userRequest request.UserRequest // Usando request do pacote user/request
+	var userRequest user_request_dto.UserRequest // <<< Usando o alias aqui
 	if err := c.ShouldBindJSON(&userRequest); err != nil {
 		logger.Error("Error validating user info for creation", err, zap.String("journey", "createUser"))
 		errRest := validation.ValidateUserError(err)
@@ -25,16 +25,7 @@ func (uc *userControllerInterface) CreateUser(c *gin.Context) {
 		return
 	}
 
-	// Validação do UserType no controller antes de passar para o serviço
 	userTypeDomain := model.UserType(userRequest.UserType)
-	if userTypeDomain != model.UserTypeCollaborator && userTypeDomain != model.UserTypeMaster {
-		logger.Error("Invalid user_type provided", nil,
-			zap.String("journey", "createUser"),
-			zap.String("userTypeReceived", userRequest.UserType))
-		// O validador "oneof" já deve pegar isso, mas uma checagem explícita não faz mal.
-		// Se o oneof já garante, esta validação pode ser redundante.
-		// No entanto, a conversão para model.UserType é boa.
-	}
 
 	domain := model.NewUserDomain(
 		userRequest.Email,
@@ -43,10 +34,8 @@ func (uc *userControllerInterface) CreateUser(c *gin.Context) {
 		userTypeDomain,
 	)
 
-	// O serviço cuidará da lógica de criptografia e verificação de email duplicado.
 	domainResult, serviceErr := uc.service.CreateUserServices(domain)
 	if serviceErr != nil {
-		// O serviço já deve logar os detalhes do erro. O controller loga a falha na chamada do serviço.
 		logger.Error("Failed to call user creation service", serviceErr, zap.String("journey", "createUser"))
 		c.JSON(serviceErr.Code, serviceErr)
 		return
@@ -56,7 +45,5 @@ func (uc *userControllerInterface) CreateUser(c *gin.Context) {
 		zap.String("userId", domainResult.GetID()),
 		zap.String("journey", "createUser"))
 
-	// O view.ConvertDomainToResponse usará o UserResponse de src/controller/user/response/
-	// após o ajuste dos imports no pacote view.
-	c.JSON(http.StatusCreated, view.ConvertDomainToResponse(domainResult)) // Alterado para StatusCreated
+	c.JSON(http.StatusCreated, view.ConvertUserDomainToResponse(domainResult))
 }

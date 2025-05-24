@@ -6,15 +6,12 @@ import (
 
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/logger"
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err"
-
-	// Ajustar o import para o response específico do usuário se necessário, ou view cuidará disso.
-	// O view.ConvertDomainToResponse usará o UserResponse de src/controller/user/response/
-	// após o ajuste dos imports no pacote view.
-	controller_response "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/user/response" // Para model.UserTypeMaster (se usado em permissões)
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/view"
+	controller_response "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/user/response"
+	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/view" // Import do pacote view
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.uber.org/zap"
+	// "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model" // Removido se não usado diretamente para model.UserTypeMaster
 )
 
 func (uc *userControllerInterface) FindUserByID(c *gin.Context) {
@@ -48,7 +45,7 @@ func (uc *userControllerInterface) FindUserByID(c *gin.Context) {
 		zap.String("journey", "findUserByID"),
 		zap.String("userId", userDomain.GetID()))
 
-	c.JSON(http.StatusOK, view.ConvertDomainToResponse(userDomain))
+	c.JSON(http.StatusOK, view.ConvertUserDomainToResponse(userDomain)) // <<< CHAMADA ATUALIZADA
 }
 
 func (uc *userControllerInterface) FindUserByEmail(c *gin.Context) {
@@ -82,21 +79,12 @@ func (uc *userControllerInterface) FindUserByEmail(c *gin.Context) {
 		"FindUserByEmail controller executed successfully",
 		zap.String("journey", "findUserByEmail"),
 		zap.String("userEmail", userDomain.GetEmail()))
-	c.JSON(http.StatusOK, view.ConvertDomainToResponse(userDomain))
+	c.JSON(http.StatusOK, view.ConvertUserDomainToResponse(userDomain)) // <<< CHAMADA ATUALIZADA
 }
 
 func (uc *userControllerInterface) FindAllUsers(c *gin.Context) {
 	logger.Info("Init FindAllUsers controller",
 		zap.String("journey", "findAllUsers"))
-
-	// TODO: (Pós-JWT) Verificar permissão. Somente 'master'.
-	// actingUserType := c.GetString("userType") // Virá do token JWT
-	// if model.UserType(actingUserType) != model.UserTypeMaster {
-	//     logger.Warn("Forbidden attempt to list all users by non-master user", ...)
-	//     restErr := rest_err.NewForbiddenError("You do not have permission to perform this action.")
-	//     c.JSON(restErr.Code, restErr)
-	//     return
-	// }
 
 	userDomains, serviceErr := uc.service.FindAllUsersServices()
 	if serviceErr != nil {
@@ -106,17 +94,9 @@ func (uc *userControllerInterface) FindAllUsers(c *gin.Context) {
 		return
 	}
 
-	// Convertendo cada domain para response.
-	// O view.ConvertDomainToResponse será usado para cada item.
-	// Se o UserResponse estivesse no pacote global, o import aqui seria diferente.
-	// Como está em controller/user/response, o pacote view precisará conhecê-lo
-	// ou teremos que fazer a conversão aqui.
-	// Por ora, assumimos que view.ConvertDomainToResponse lida com UserResponse de alguma forma
-	// ou que o pacote view será atualizado para importar de controller_response.UserResponse.
-	// Vamos manter a conversão usando o view por enquanto.
-	var userResponses []controller_response.UserResponse // Usando o response específico
+	var userResponses []controller_response.UserResponse
 	for _, userDomain := range userDomains {
-		userResponses = append(userResponses, view.ConvertDomainToResponse(userDomain))
+		userResponses = append(userResponses, view.ConvertUserDomainToResponse(userDomain)) // <<< CHAMADA ATUALIZADA
 	}
 
 	logger.Info("FindAllUsers controller executed successfully",

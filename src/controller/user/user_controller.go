@@ -1,10 +1,8 @@
 package user
 
 import (
-	// ATENÇÃO: O import para o serviço de usuário precisará ser ajustado
-	// para "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/service/user"
-	// após a reorganização da camada de serviço.
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/service" // ESTE IMPORT SERÁ AJUSTADO
+	// Import ajustado para o novo pacote do serviço de usuário
+	service_user "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/service/user"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,12 +20,12 @@ type UserControllerInterface interface {
 
 // userControllerInterface é a implementação da interface UserControllerInterface.
 type userControllerInterface struct {
-	service service.UserDomainService // O tipo aqui será service_user.UserDomainService
+	service service_user.UserDomainService // Tipo ajustado para service_user.UserDomainService
 }
 
 // NewUserControllerInterface cria uma nova instância de UserControllerInterface.
 func NewUserControllerInterface(
-	serviceInterface service.UserDomainService, // O tipo aqui será service_user.UserDomainService
+	serviceInterface service_user.UserDomainService, // Tipo ajustado para service_user.UserDomainService
 ) UserControllerInterface {
 	return &userControllerInterface{
 		service: serviceInterface,
