@@ -5,31 +5,34 @@ import (
 
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/logger"
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/model/request" // Import temporário
+
+	// Import ajustado para o novo local do WorkInfoUpdateRequest, usando alias
+	workinfo_request_dto "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/workinfo/request"
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model"
 	"go.uber.org/zap"
 )
 
 func (wd *workInfoDomainService) UpdateWorkInfoServices(
-	userId string, // UserID do WorkInfo a ser atualizado
-	updateRequest request.WorkInfoUpdateRequest, // DTO ainda do local antigo
+	userId string,
+	updateRequest workinfo_request_dto.WorkInfoUpdateRequest, // <<< Tipo ajustado com alias
 ) (model.WorkInfoDomainInterface, *rest_err.RestErr) {
 	logger.Info("Init UpdateWorkInfoServices",
 		zap.String("journey", "updateWorkInfo"),
 		zap.String("userID", userId))
 
+	// ... (restante da lógica do método como estava, pois as referências internas a updateRequest.Team etc. continuam válidas)
+	// Validações de UserID, existência do usuário, tipo do usuário (colaborador)
 	if userId == "" {
 		logger.Error("UserID for WorkInfo update cannot be empty", nil, zap.String("journey", "updateWorkInfo"))
 		return nil, rest_err.NewBadRequestError("User ID for WorkInfo update cannot be empty")
 	}
 
-	// 1. Verificar se o usuário (dono do WorkInfo) existe e é um colaborador
 	targetUser, errUser := wd.userDomainService.FindUserByIDServices(userId)
 	if errUser != nil {
 		logger.Error("User for WorkInfo update not found by service", errUser,
 			zap.String("journey", "updateWorkInfo"),
 			zap.String("userID", userId))
-		if errUser.Code == 404 { // http.StatusNotFound
+		if errUser.Code == 404 {
 			return nil, rest_err.NewBadRequestError(fmt.Sprintf("User (ID: %s) for WorkInfo update does not exist", userId))
 		}
 		return nil, errUser
@@ -42,17 +45,14 @@ func (wd *workInfoDomainService) UpdateWorkInfoServices(
 		return nil, rest_err.NewForbiddenError(fmt.Sprintf("WorkInfo can only be updated for 'colaborador' users. User ID: %s is a '%s'", userId, targetUser.GetUserType()))
 	}
 
-	// 2. Buscar o WorkInfo existente
 	existingWorkInfoDomain, err := wd.workInfoRepository.FindWorkInfoByUserId(userId)
 	if err != nil {
 		logger.Error("WorkInfo to update not found by service", err,
 			zap.String("journey", "updateWorkInfo"),
 			zap.String("userID", userId))
-		// O repositório já retorna NotFoundError se for o caso
 		return nil, err
 	}
 
-	// 3. Aplicar atualizações do request ao domain existente
 	fieldsUpdated := false
 	if updateRequest.Team != nil {
 		newTeam := model.Team(*updateRequest.Team)
@@ -90,9 +90,8 @@ func (wd *workInfoDomainService) UpdateWorkInfoServices(
 	}
 	if updateRequest.SuperiorID != nil {
 		newSuperiorID := *updateRequest.SuperiorID
-		// Validar novo SuperiorID
-		if newSuperiorID != "" { // Se estiver tentando definir um novo superior
-			if newSuperiorID == userId { // Não pode ser ele mesmo
+		if newSuperiorID != "" {
+			if newSuperiorID == userId {
 				logger.Error("New SuperiorID cannot be the same as TargetUserID for WorkInfo update", nil,
 					zap.String("journey", "updateWorkInfo"),
 					zap.String("targetUserID", userId))
@@ -109,9 +108,8 @@ func (wd *workInfoDomainService) UpdateWorkInfoServices(
 				return nil, errSuperior
 			}
 		}
-		// Aplicar alteração se diferente
 		if newSuperiorID != existingWorkInfoDomain.GetSuperiorID() {
-			existingWorkInfoDomain.SetSuperiorID(newSuperiorID) // Permite definir como string vazia para remover superior
+			existingWorkInfoDomain.SetSuperiorID(newSuperiorID)
 			fieldsUpdated = true
 		}
 	}
@@ -120,11 +118,9 @@ func (wd *workInfoDomainService) UpdateWorkInfoServices(
 		logger.Info("No actual changes detected for WorkInfo update.",
 			zap.String("journey", "updateWorkInfo"),
 			zap.String("userID", userId))
-		return existingWorkInfoDomain, nil // Retorna o domínio existente sem chamar o repo
+		return existingWorkInfoDomain, nil
 	}
 
-	// 4. Chamar o repositório para persistir as alterações
-	// O método UpdateWorkInfo no repositório agora espera o userId e o domain completo.
 	repoErr := wd.workInfoRepository.UpdateWorkInfo(userId, existingWorkInfoDomain)
 	if repoErr != nil {
 		logger.Error("Error calling repository to update WorkInfo", repoErr,
@@ -137,5 +133,5 @@ func (wd *workInfoDomainService) UpdateWorkInfoServices(
 		zap.String("userId", userId),
 		zap.String("journey", "updateWorkInfo"),
 	)
-	return existingWorkInfoDomain, nil // Retorna o domínio atualizado
+	return existingWorkInfoDomain, nil
 }

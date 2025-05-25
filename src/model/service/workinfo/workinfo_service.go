@@ -2,12 +2,10 @@ package workinfo
 
 import (
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/model/request" // Mantido para WorkInfoUpdateRequest na interface
+	// Import ajustado para o novo local do WorkInfoUpdateRequest, usando alias
+	workinfo_request_dto "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/workinfo/request"
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model"
-
-	// Import para o novo pacote do repositório workinfo
 	repository_workinfo "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/repository/workinfo"
-	// Import para o novo pacote do serviço user (já reorganizado)
 	service_user "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/service/user"
 )
 
@@ -21,26 +19,22 @@ type WorkInfoDomainService interface {
 		userId string,
 	) (model.WorkInfoDomainInterface, *rest_err.RestErr)
 
-	// UpdateWorkInfoServices agora lida com atualizações parciais
-	// O tipo request.WorkInfoUpdateRequest ainda vem do caminho antigo.
-	// Ele será movido para src/controller/workinfo/request/ quando reorganizarmos o controller.
-	// Por agora, manteremos o import original para ele.
 	UpdateWorkInfoServices(
 		userId string,
-		updateRequest request.WorkInfoUpdateRequest,
+		updateRequest workinfo_request_dto.WorkInfoUpdateRequest, // <<< Tipo ajustado com alias
 	) (model.WorkInfoDomainInterface, *rest_err.RestErr)
 }
 
 // workInfoDomainService é a implementação da interface WorkInfoDomainService.
 type workInfoDomainService struct {
-	workInfoRepository repository_workinfo.WorkInfoRepository // Tipo ajustado
-	userDomainService  service_user.UserDomainService         // Tipo ajustado
+	workInfoRepository repository_workinfo.WorkInfoRepository
+	userDomainService  service_user.UserDomainService
 }
 
 // NewWorkInfoDomainService cria uma nova instância de WorkInfoDomainService.
 func NewWorkInfoDomainService(
-	workInfoRepository repository_workinfo.WorkInfoRepository, // Tipo ajustado
-	userDomainService service_user.UserDomainService, // Tipo ajustado
+	workInfoRepository repository_workinfo.WorkInfoRepository,
+	userDomainService service_user.UserDomainService,
 ) WorkInfoDomainService {
 	return &workInfoDomainService{
 		workInfoRepository: workInfoRepository,
