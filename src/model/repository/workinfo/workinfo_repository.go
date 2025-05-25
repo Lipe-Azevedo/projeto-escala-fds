@@ -1,4 +1,4 @@
-package repository
+package workinfo
 
 import (
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err"
@@ -11,18 +11,7 @@ const (
 	MONGODB_WORKINFO_COLLECTION_ENV_KEY = "MONGODB_WORKINFO_COLLECTION"
 )
 
-func NewWorkInfoRepository(
-	database *mongo.Database,
-) WorkInfoRepository {
-	return &workInfoRepository{
-		database,
-	}
-}
-
-type workInfoRepository struct {
-	dataBaseConnection *mongo.Database
-}
-
+// WorkInfoRepository define a interface para o repositório de WorkInfo.
 type WorkInfoRepository interface {
 	CreateWorkInfo(
 		workInfoDomain model.WorkInfoDomainInterface,
@@ -35,5 +24,19 @@ type WorkInfoRepository interface {
 	UpdateWorkInfo(
 		userId string,
 		workInfoDomain model.WorkInfoDomainInterface,
-	) *rest_err.RestErr
+	) *rest_err.RestErr // Modificado para refletir a lógica de atualização que pode não retornar o domínio diretamente do repo
+}
+
+// workInfoRepository é a implementação da interface WorkInfoRepository.
+type workInfoRepository struct {
+	databaseConnection *mongo.Database // Nome do campo padronizado
+}
+
+// NewWorkInfoRepository cria uma nova instância de WorkInfoRepository.
+func NewWorkInfoRepository(
+	database *mongo.Database,
+) WorkInfoRepository {
+	return &workInfoRepository{
+		databaseConnection: database, // Nome do campo padronizado
+	}
 }

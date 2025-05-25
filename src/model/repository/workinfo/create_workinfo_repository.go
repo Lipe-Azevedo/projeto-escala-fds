@@ -1,4 +1,4 @@
-package repository
+package workinfo
 
 import (
 	"context"
@@ -17,27 +17,26 @@ func (wr *workInfoRepository) CreateWorkInfo(
 	workInfoDomain model.WorkInfoDomainInterface,
 ) (model.WorkInfoDomainInterface, *rest_err.RestErr) {
 	logger.Info(
-		"Init createWorkInfo repository.",
-		zap.String("journey", "createWorkInfo"))
+		"Init CreateWorkInfo repository",
+		zap.String("journey", "createWorkInfo"),
+		zap.String("userId", workInfoDomain.GetUserId()))
 
-	collectionNameKey := MONGODB_WORKINFO_COLLECTION_ENV_KEY
-	collectionName := os.Getenv(collectionNameKey)
-
+	collectionName := os.Getenv(MONGODB_WORKINFO_COLLECTION_ENV_KEY)
 	if collectionName == "" {
-		errorMessage := fmt.Sprintf("Environment variable %s not set for work_info collection name", collectionNameKey)
+		errorMessage := fmt.Sprintf("Environment variable %s not set for work_info collection name", MONGODB_WORKINFO_COLLECTION_ENV_KEY)
 		logger.Error(errorMessage, nil, zap.String("journey", "createWorkInfo"))
 		return nil, rest_err.NewInternalServerError("database configuration error: work_info collection name not set")
 	}
-	collection := wr.dataBaseConnection.Collection(collectionName)
+	collection := wr.databaseConnection.Collection(collectionName)
 
 	value := converter.ConvertWorkInfoDomainToEntity(workInfoDomain)
-	// 'value' agora tem UserID (com tag bson:"_id") preenchido com workInfoDomain.GetUserId()
+	// No WorkInfoEntity, UserID é mapeado para _id.
 
 	_, err := collection.InsertOne(context.Background(), value)
 	if err != nil {
 		if writeException, ok := err.(mongo.WriteException); ok {
 			for _, writeError := range writeException.WriteErrors {
-				if writeError.Code == 11000 { // Erro de chave duplicada
+				if writeError.Code == 11000 { // Erro de chave duplicada (_id, que é o UserID)
 					errorMessage := fmt.Sprintf("WorkInfo for user ID %s already exists (duplicate _id)", value.UserID)
 					logger.Error(errorMessage, err,
 						zap.String("journey", "createWorkInfo"),
@@ -53,8 +52,10 @@ func (wr *workInfoRepository) CreateWorkInfo(
 	}
 
 	logger.Info("CreateWorkInfo repository executed successfully",
-		zap.String("userID", workInfoDomain.GetUserId()), // O UserID do domain é o _id
+		zap.String("userID", workInfoDomain.GetUserId()),
 		zap.String("journey", "createWorkInfo"))
 
+	// Como o _id é o próprio UserID do domain, e não é gerado pelo Mongo neste caso (nós o definimos),
+	// podemos retornar o domain original.
 	return workInfoDomain, nil
 }
