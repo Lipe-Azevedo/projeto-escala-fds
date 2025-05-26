@@ -13,7 +13,7 @@ type Team string
 
 const (
 	TeamCustomerService  Team = "Customer Service"
-	TeamSecurity         Team = "security" // Mantido em minúsculas como no request original
+	TeamSecurity         Team = "Security"
 	TeamTechnicalSupport Team = "Technical Support"
 )
 

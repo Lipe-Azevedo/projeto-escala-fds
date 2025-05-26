@@ -10,7 +10,7 @@ type WorkInfoRequest struct {
 }
 
 type WorkInfoUpdateRequest struct {
-	Team          *string `json:"team,omitempty" binding:"omitempty,oneof='Customer Service' security 'Technical Support'"`
+	Team          *string `json:"team,omitempty" binding:"omitempty,oneof='Customer Service' 'Security' 'Technical Support'"`
 	Position      *string `json:"position,omitempty" binding:"omitempty"`
 	DefaultShift  *string `json:"default_shift,omitempty" binding:"omitempty,oneof=06:00-14:00 14:00-22:00 22:00-06:00"`
 	WeekdayOff    *string `json:"weekday_off,omitempty" binding:"omitempty,oneof=monday tuesday wednesday thursday friday"`
