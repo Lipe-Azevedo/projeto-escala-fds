@@ -2,9 +2,10 @@ package workinfo
 
 import (
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err"
-	// Import ajustado para o novo local do WorkInfoUpdateRequest, usando alias
 	workinfo_request_dto "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/workinfo/request"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model"
+
+	// IMPORT ATUALIZADO: Agora importa do subpacote 'domain'
+	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/domain"
 	repository_workinfo "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/repository/workinfo"
 	service_user "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/service/user"
 )
@@ -12,17 +13,17 @@ import (
 // WorkInfoDomainService define a interface para os serviços de domínio de WorkInfo.
 type WorkInfoDomainService interface {
 	CreateWorkInfoServices(
-		workInfoDomain model.WorkInfoDomainInterface,
-	) (model.WorkInfoDomainInterface, *rest_err.RestErr)
+		workInfoReqDomain domain.WorkInfoDomainInterface, // <<< USA domain.WorkInfoDomainInterface
+	) (domain.WorkInfoDomainInterface, *rest_err.RestErr) // <<< USA domain.WorkInfoDomainInterface
 
 	FindWorkInfoByUserIdServices(
 		userId string,
-	) (model.WorkInfoDomainInterface, *rest_err.RestErr)
+	) (domain.WorkInfoDomainInterface, *rest_err.RestErr) // <<< USA domain.WorkInfoDomainInterface
 
 	UpdateWorkInfoServices(
 		userId string,
-		updateRequest workinfo_request_dto.WorkInfoUpdateRequest, // <<< Tipo ajustado com alias
-	) (model.WorkInfoDomainInterface, *rest_err.RestErr)
+		updateRequest workinfo_request_dto.WorkInfoUpdateRequest,
+	) (domain.WorkInfoDomainInterface, *rest_err.RestErr) // <<< USA domain.WorkInfoDomainInterface
 }
 
 // workInfoDomainService é a implementação da interface WorkInfoDomainService.

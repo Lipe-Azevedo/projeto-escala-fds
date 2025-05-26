@@ -10,55 +10,56 @@ import (
 	// DTOs de Swap (já reorganizado)
 	swap_response_dto "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/swap/response"
 
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model"
+	// IMPORT ATUALIZADO: Agora importa do subpacote 'domain'
+	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/domain"
 )
 
-// ConvertUserDomainToResponse converte um UserDomainInterface para user_response_dto.UserResponse.
+// ConvertUserDomainToResponse converte um domain.UserDomainInterface para user_response_dto.UserResponse.
 func ConvertUserDomainToResponse(
-	userDomain model.UserDomainInterface,
+	userDomain domain.UserDomainInterface, // <<< USA domain.UserDomainInterface
 ) user_response_dto.UserResponse {
 	return user_response_dto.UserResponse{
 		ID:       userDomain.GetID(),
 		Email:    userDomain.GetEmail(),
 		Name:     userDomain.GetName(),
-		UserType: string(userDomain.GetUserType()),
+		UserType: string(userDomain.GetUserType()), // GetUserType() retorna domain.UserType
 		// WorkInfo:
 	}
 }
 
-// ConvertWorkInfoDomainToResponse agora usa workinfo_response_dto.WorkInfoResponse.
+// ConvertWorkInfoDomainToResponse agora usa domain.WorkInfoDomainInterface e workinfo_response_dto.WorkInfoResponse.
 func ConvertWorkInfoDomainToResponse(
-	workInfoDomain model.WorkInfoDomainInterface,
+	workInfoDomain domain.WorkInfoDomainInterface, // <<< USA domain.WorkInfoDomainInterface
 ) workinfo_response_dto.WorkInfoResponse {
 	return workinfo_response_dto.WorkInfoResponse{
 		UserID:        workInfoDomain.GetUserId(),
-		Team:          string(workInfoDomain.GetTeam()),
+		Team:          string(workInfoDomain.GetTeam()), // GetTeam() retorna domain.Team
 		Position:      workInfoDomain.GetPosition(),
-		DefaultShift:  string(workInfoDomain.GetDefaultShift()),
-		WeekdayOff:    string(workInfoDomain.GetWeekdayOff()),
-		WeekendDayOff: string(workInfoDomain.GetWeekendDayOff()),
+		DefaultShift:  string(workInfoDomain.GetDefaultShift()),  // GetDefaultShift() retorna domain.Shift
+		WeekdayOff:    string(workInfoDomain.GetWeekdayOff()),    // GetWeekdayOff() retorna domain.Weekday
+		WeekendDayOff: string(workInfoDomain.GetWeekendDayOff()), // GetWeekendDayOff() retorna domain.WeekendDayOff
 		SuperiorID:    workInfoDomain.GetSuperiorID(),
 	}
 }
 
-// ConvertSwapDomainToResponse agora usa swap_response_dto.SwapResponse.
+// ConvertSwapDomainToResponse agora usa domain.SwapDomainInterface e swap_response_dto.SwapResponse.
 func ConvertSwapDomainToResponse(
-	domain model.SwapDomainInterface,
+	swapDomainVal domain.SwapDomainInterface, // <<< USA domain.SwapDomainInterface (renomeei param para evitar conflito com package)
 ) swap_response_dto.SwapResponse {
-	approvedAt := formatTimePointer(domain.GetApprovedAt())
-	approvedBy := domain.GetApprovedBy()
+	approvedAt := formatTimePointer(swapDomainVal.GetApprovedAt())
+	approvedBy := formatTimePointerToString(swapDomainVal.GetApprovedBy()) // Ajustado para lidar com *string
 
 	return swap_response_dto.SwapResponse{
-		ID:            domain.GetID(),
-		RequesterID:   domain.GetRequesterID(),
-		RequestedID:   domain.GetRequestedID(),
-		CurrentShift:  string(domain.GetCurrentShift()),
-		NewShift:      string(domain.GetNewShift()),
-		CurrentDayOff: string(domain.GetCurrentDayOff()),
-		NewDayOff:     string(domain.GetNewDayOff()),
-		Status:        string(domain.GetStatus()),
-		Reason:        domain.GetReason(),
-		CreatedAt:     domain.GetCreatedAt().Format(time.RFC3339),
+		ID:            swapDomainVal.GetID(),
+		RequesterID:   swapDomainVal.GetRequesterID(),
+		RequestedID:   swapDomainVal.GetRequestedID(),
+		CurrentShift:  string(swapDomainVal.GetCurrentShift()),  // GetCurrentShift() retorna domain.Shift
+		NewShift:      string(swapDomainVal.GetNewShift()),      // GetNewShift() retorna domain.Shift
+		CurrentDayOff: string(swapDomainVal.GetCurrentDayOff()), // GetCurrentDayOff() retorna domain.Weekday
+		NewDayOff:     string(swapDomainVal.GetNewDayOff()),     // GetNewDayOff() retorna domain.Weekday
+		Status:        string(swapDomainVal.GetStatus()),        // GetStatus() retorna domain.SwapStatus
+		Reason:        swapDomainVal.GetReason(),
+		CreatedAt:     swapDomainVal.GetCreatedAt().Format(time.RFC3339),
 		ApprovedAt:    approvedAt,
 		ApprovedBy:    approvedBy,
 	}
@@ -70,4 +71,14 @@ func formatTimePointer(t *time.Time) *string {
 	}
 	formatted := t.Format(time.RFC3339)
 	return &formatted
+}
+
+// Nova função auxiliar para converter *string para *string (tratando nil)
+// Ou simplesmente usar o valor diretamente se o DTO já espera *string
+func formatTimePointerToString(s *string) *string {
+	if s == nil {
+		return nil
+	}
+	val := *s
+	return &val
 }

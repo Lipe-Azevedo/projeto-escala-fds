@@ -3,13 +3,15 @@ package user
 import (
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/logger"
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model"
+
+	// IMPORT ATUALIZADO: Agora importa do subpacote 'domain'
+	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/domain"
 	"go.uber.org/zap"
 )
 
 func (ud *userDomainService) FindUserByIDServices(
 	id string,
-) (model.UserDomainInterface, *rest_err.RestErr) {
+) (domain.UserDomainInterface, *rest_err.RestErr) { // <<< USA domain.UserDomainInterface
 	logger.Info(
 		"Init FindUserByIDServices",
 		zap.String("journey", "findUserByID"),
@@ -17,8 +19,6 @@ func (ud *userDomainService) FindUserByIDServices(
 
 	userDomain, err := ud.userRepository.FindUserByID(id)
 	if err != nil {
-		// O repositório já loga o erro específico do MongoDB.
-		// O serviço loga que a chamada ao repositório falhou.
 		logger.Error("Error calling repository to find user by ID", err,
 			zap.String("journey", "findUserByID"),
 			zap.String("userId", id))
@@ -33,7 +33,7 @@ func (ud *userDomainService) FindUserByIDServices(
 
 func (ud *userDomainService) FindUserByEmailServices(
 	email string,
-) (model.UserDomainInterface, *rest_err.RestErr) {
+) (domain.UserDomainInterface, *rest_err.RestErr) { // <<< USA domain.UserDomainInterface
 	logger.Info(
 		"Init FindUserByEmailServices",
 		zap.String("journey", "findUserByEmail"),
@@ -53,7 +53,7 @@ func (ud *userDomainService) FindUserByEmailServices(
 	return userDomain, nil
 }
 
-func (ud *userDomainService) FindAllUsersServices() ([]model.UserDomainInterface, *rest_err.RestErr) {
+func (ud *userDomainService) FindAllUsersServices() ([]domain.UserDomainInterface, *rest_err.RestErr) { // <<< USA []domain.UserDomainInterface
 	logger.Info(
 		"Init FindAllUsersServices",
 		zap.String("journey", "findAllUsers"))

@@ -3,35 +3,38 @@ package user
 import (
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/logger"
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model"
+	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/domain" // <<< IMPORT ATUALIZADO
 	"go.uber.org/zap"
 )
 
+// UserDomainService e userRepository vêm de user_service.go e user_repository.go neste mesmo pacote (ou pacotes irmãos)
+
 func (ud *userDomainService) CreateUserServices(
-	userDomain model.UserDomainInterface,
-) (model.UserDomainInterface, *rest_err.RestErr) {
+	userDomainReq domain.UserDomainInterface, // <<< domain.UserDomainInterface
+) (domain.UserDomainInterface, *rest_err.RestErr) { // <<< domain.UserDomainInterface
 	logger.Info(
 		"Init CreateUserServices",
 		zap.String("journey", "createUser"),
-		zap.String("email", userDomain.GetEmail()))
+		zap.String("email", userDomainReq.GetEmail()))
 
-	// Verifica se o e-mail já está registrado
-	// Esta chamada usará o método FindUserByEmailServices do mesmo serviço (ud).
-	existingUser, _ := ud.FindUserByEmailServices(userDomain.GetEmail())
+	existingUser, _ := ud.FindUserByEmailServices(userDomainReq.GetEmail())
 	if existingUser != nil {
 		logger.Warn("Attempt to create user with already registered email",
-			zap.String("email", userDomain.GetEmail()),
+			zap.String("email", userDomainReq.GetEmail()),
 			zap.String("journey", "createUser"))
-		return nil, rest_err.NewConflictError("Email is already registered in another account.") // Alterado para ConflictError
+		return nil, rest_err.NewConflictError("Email is already registered in another account.")
 	}
 
-	userDomain.EncryptPassword()
+	// A criptografia será feita aqui antes de salvar, usando o método do domain
+	// userDomainReq já é uma instância de domain.UserDomainInterface
+	// que tem o método EncryptPassword (que ainda usa MD5, será alterado em seguida).
+	userDomainReq.EncryptPassword() // Chamada ao método da interface
 
-	userDomainRepository, err := ud.userRepository.CreateUser(userDomain)
-	if err != nil {
-		logger.Error("Error calling repository to create user", err,
+	userDomainRepository, repoErr := ud.userRepository.CreateUser(userDomainReq)
+	if repoErr != nil {
+		logger.Error("Error calling repository to create user", repoErr,
 			zap.String("journey", "createUser"))
-		return nil, err
+		return nil, repoErr
 	}
 
 	logger.Info("CreateUserServices executed successfully",

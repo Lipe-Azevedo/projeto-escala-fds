@@ -2,39 +2,39 @@ package user
 
 import (
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/repository/user" // ATENÇÃO: Import ajustado para o novo pacote do repositório
+	// IMPORT ATUALIZADO: Agora importa do subpacote 'domain'
+	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/domain"
+	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/repository/user"
 )
 
 // UserDomainService define a interface para os serviços de domínio de usuário.
-// As implementações dos métodos estarão em arquivos separados neste pacote.
 type UserDomainService interface {
-	CreateUserServices(userDomain model.UserDomainInterface) (
-		model.UserDomainInterface, *rest_err.RestErr)
+	CreateUserServices(userDomainReq domain.UserDomainInterface) ( // <<< USA domain.UserDomainInterface
+		domain.UserDomainInterface, *rest_err.RestErr) // <<< USA domain.UserDomainInterface
 
 	FindUserByEmailServices(
 		email string,
-	) (model.UserDomainInterface, *rest_err.RestErr)
+	) (domain.UserDomainInterface, *rest_err.RestErr) // <<< USA domain.UserDomainInterface
 
 	FindUserByIDServices(
 		id string,
-	) (model.UserDomainInterface, *rest_err.RestErr)
+	) (domain.UserDomainInterface, *rest_err.RestErr) // <<< USA domain.UserDomainInterface
 
-	UpdateUserServices(userId string, userDomain model.UserDomainInterface) *rest_err.RestErr // Renomeado de UpdateUser para UpdateUserServices
+	UpdateUserServices(userId string, userUpdateRequestDomain domain.UserDomainInterface) *rest_err.RestErr // <<< USA domain.UserDomainInterface
 
-	DeleteUserServices(userId string) *rest_err.RestErr // Renomeado de DeleteUser para DeleteUserServices
+	DeleteUserServices(userId string) *rest_err.RestErr
 
-	FindAllUsersServices() ([]model.UserDomainInterface, *rest_err.RestErr)
+	FindAllUsersServices() ([]domain.UserDomainInterface, *rest_err.RestErr) // <<< USA []domain.UserDomainInterface
 }
 
 // userDomainService é a implementação da interface UserDomainService.
 type userDomainService struct {
-	userRepository user.UserRepository // Tipo ajustado para user.UserRepository
+	userRepository user.UserRepository
 }
 
 // NewUserDomainService cria uma nova instância de UserDomainService.
 func NewUserDomainService(
-	userRepository user.UserRepository, // Tipo ajustado para user.UserRepository
+	userRepository user.UserRepository,
 ) UserDomainService {
 	return &userDomainService{userRepository}
 }

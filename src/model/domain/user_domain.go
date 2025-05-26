@@ -1,8 +1,9 @@
 package domain
 
 import (
-	"crypto/md5" // Temporário, será substituído por bcrypt
+	"crypto/md5"
 	"encoding/hex"
+	// "log" // Não precisamos de log aqui se a versão MD5 não falha
 )
 
 // UserDomainInterface define a interface para o domínio do usuário.
@@ -11,10 +12,10 @@ type UserDomainInterface interface {
 	GetEmail() string
 	GetPassword() string
 	GetName() string
-	GetUserType() UserType // UserType vem de common_types.go (mesmo pacote 'domain')
+	GetUserType() UserType
 
 	SetID(string)
-	EncryptPassword() // Temporário, retornará erro com bcrypt
+	EncryptPassword() error // <<< Assinatura atualizada para retornar erro
 	// CheckPassword(plainPassword string) bool // Será adicionado com bcrypt
 }
 
@@ -24,7 +25,7 @@ type userDomain struct {
 	email    string
 	password string
 	name     string
-	userType UserType // UserType vem de common_types.go (mesmo pacote 'domain')
+	userType UserType
 }
 
 // NewUserDomain construtor para criar uma nova instância de UserDomainInterface.
@@ -61,10 +62,11 @@ func (ud *userDomain) GetUserType() UserType { return ud.userType }
 
 func (ud *userDomain) SetID(id string) { ud.id = id }
 
-// EncryptPassword atualmente usa MD5. Será refatorado para bcrypt.
-func (ud *userDomain) EncryptPassword() {
+// EncryptPassword atualmente usa MD5. Agora retorna nil como erro.
+func (ud *userDomain) EncryptPassword() error { // <<< Assinatura atualizada
 	hash := md5.New()
 	defer hash.Reset()
 	hash.Write([]byte(ud.password))
 	ud.password = hex.EncodeToString(hash.Sum(nil))
+	return nil // <<< Retorna nil, pois MD5 aqui não falha
 }

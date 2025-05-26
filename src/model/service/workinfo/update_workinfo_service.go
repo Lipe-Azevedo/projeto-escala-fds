@@ -5,23 +5,21 @@ import (
 
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/logger"
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err"
-
-	// Import ajustado para o novo local do WorkInfoUpdateRequest, usando alias
 	workinfo_request_dto "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/workinfo/request"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model"
+
+	// IMPORT ATUALIZADO: Agora importa do subpacote 'domain'
+	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/domain"
 	"go.uber.org/zap"
 )
 
 func (wd *workInfoDomainService) UpdateWorkInfoServices(
 	userId string,
-	updateRequest workinfo_request_dto.WorkInfoUpdateRequest, // <<< Tipo ajustado com alias
-) (model.WorkInfoDomainInterface, *rest_err.RestErr) {
+	updateRequest workinfo_request_dto.WorkInfoUpdateRequest,
+) (domain.WorkInfoDomainInterface, *rest_err.RestErr) { // <<< USA domain.WorkInfoDomainInterface
 	logger.Info("Init UpdateWorkInfoServices",
 		zap.String("journey", "updateWorkInfo"),
 		zap.String("userID", userId))
 
-	// ... (restante da lógica do método como estava, pois as referências internas a updateRequest.Team etc. continuam válidas)
-	// Validações de UserID, existência do usuário, tipo do usuário (colaborador)
 	if userId == "" {
 		logger.Error("UserID for WorkInfo update cannot be empty", nil, zap.String("journey", "updateWorkInfo"))
 		return nil, rest_err.NewBadRequestError("User ID for WorkInfo update cannot be empty")
@@ -37,7 +35,7 @@ func (wd *workInfoDomainService) UpdateWorkInfoServices(
 		}
 		return nil, errUser
 	}
-	if targetUser.GetUserType() != model.UserTypeCollaborator {
+	if targetUser.GetUserType() != domain.UserTypeCollaborator { // <<< USA domain.UserTypeCollaborator
 		logger.Warn("Attempt to update WorkInfo for a non-collaborator user",
 			zap.String("journey", "updateWorkInfo"),
 			zap.String("targetUserID", userId),
@@ -55,7 +53,7 @@ func (wd *workInfoDomainService) UpdateWorkInfoServices(
 
 	fieldsUpdated := false
 	if updateRequest.Team != nil {
-		newTeam := model.Team(*updateRequest.Team)
+		newTeam := domain.Team(*updateRequest.Team) // <<< USA domain.Team
 		if newTeam != existingWorkInfoDomain.GetTeam() {
 			existingWorkInfoDomain.SetTeam(newTeam)
 			fieldsUpdated = true
@@ -68,21 +66,21 @@ func (wd *workInfoDomainService) UpdateWorkInfoServices(
 		}
 	}
 	if updateRequest.DefaultShift != nil {
-		newShift := model.Shift(*updateRequest.DefaultShift)
+		newShift := domain.Shift(*updateRequest.DefaultShift) // <<< USA domain.Shift
 		if newShift != existingWorkInfoDomain.GetDefaultShift() {
 			existingWorkInfoDomain.SetDefaultShift(newShift)
 			fieldsUpdated = true
 		}
 	}
 	if updateRequest.WeekdayOff != nil {
-		newWeekdayOff := model.Weekday(*updateRequest.WeekdayOff)
+		newWeekdayOff := domain.Weekday(*updateRequest.WeekdayOff) // <<< USA domain.Weekday
 		if newWeekdayOff != existingWorkInfoDomain.GetWeekdayOff() {
 			existingWorkInfoDomain.SetWeekdayOff(newWeekdayOff)
 			fieldsUpdated = true
 		}
 	}
 	if updateRequest.WeekendDayOff != nil {
-		newWeekendDayOff := model.WeekendDayOff(*updateRequest.WeekendDayOff)
+		newWeekendDayOff := domain.WeekendDayOff(*updateRequest.WeekendDayOff) // <<< USA domain.WeekendDayOff
 		if newWeekendDayOff != existingWorkInfoDomain.GetWeekendDayOff() {
 			existingWorkInfoDomain.SetWeekendDayOff(newWeekendDayOff)
 			fieldsUpdated = true
