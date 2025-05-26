@@ -4,13 +4,13 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/logger"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/validation"
+	"github.com/Lipe-Azevedo/escala-fds/src/configuration/logger"
+	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
+	"github.com/Lipe-Azevedo/escala-fds/src/configuration/validation"
 
 	// Import para o DTO de request de swap, usando alias
-	swap_request_dto "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/swap/request"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model"
+	swap_request_dto "github.com/Lipe-Azevedo/escala-fds/src/controller/swap/request"
+	"github.com/Lipe-Azevedo/escala-fds/src/model"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive" // Para validar o formato do ID
 	"go.uber.org/zap"

@@ -2,11 +2,11 @@ package routes
 
 import (
 	// User (já reorganizado)
-	controller_user "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/user"
+	controller_user "github.com/Lipe-Azevedo/escala-fds/src/controller/user"
 	// WorkInfo (já reorganizado)
-	controller_workinfo "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/workinfo"
+	controller_workinfo "github.com/Lipe-Azevedo/escala-fds/src/controller/workinfo"
 	// Swap (já reorganizado)
-	controller_swap "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/swap"
+	controller_swap "github.com/Lipe-Azevedo/escala-fds/src/controller/swap"
 
 	"github.com/gin-gonic/gin"
 )

@@ -3,8 +3,8 @@ package user
 import (
 	"net/http"
 
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/logger"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err"
+	"github.com/Lipe-Azevedo/escala-fds/src/configuration/logger"
+	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.uber.org/zap"

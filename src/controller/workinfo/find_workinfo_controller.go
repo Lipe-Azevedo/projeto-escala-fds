@@ -3,10 +3,11 @@ package workinfo
 import (
 	"net/http"
 
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/logger"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err" // Adicionado para NewForbiddenError
+	"github.com/Lipe-Azevedo/escala-fds/src/configuration/logger"
+	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err" // Adicionado para NewForbiddenError
+
 	// Para model.UserTypeMaster
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/view"
+	"github.com/Lipe-Azevedo/escala-fds/src/view"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )

@@ -4,7 +4,7 @@
 // 	"log"
 // 	"os"
 
-// 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/routes"
+// 	"github.com/Lipe-Azevedo/escala-fds/src/controller/routes"
 // 	"github.com/gin-gonic/gin"
 // 	"github.com/joho/godotenv"
 // )
@@ -33,9 +33,9 @@ import (
 	"context"
 	"log"
 
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/database/mongobd"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/logger"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/routes"
+	"github.com/Lipe-Azevedo/escala-fds/src/configuration/database/mongobd"
+	"github.com/Lipe-Azevedo/escala-fds/src/configuration/logger"
+	"github.com/Lipe-Azevedo/escala-fds/src/controller/routes"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )

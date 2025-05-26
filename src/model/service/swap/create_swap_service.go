@@ -1,9 +1,9 @@
 package swap
 
 import (
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/logger"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model"
+	"github.com/Lipe-Azevedo/escala-fds/src/configuration/logger"
+	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
+	"github.com/Lipe-Azevedo/escala-fds/src/model"
 	"go.uber.org/zap"
 	// Para time.Now() no SetApprovedAt e para o status
 )

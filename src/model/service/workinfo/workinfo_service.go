@@ -1,13 +1,13 @@
 package workinfo
 
 import (
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err"
-	workinfo_request_dto "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/workinfo/request"
+	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
+	workinfo_request_dto "github.com/Lipe-Azevedo/escala-fds/src/controller/workinfo/request"
 
 	// IMPORT ATUALIZADO: Agora importa do subpacote 'domain'
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/domain"
-	repository_workinfo "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/repository/workinfo"
-	service_user "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/service/user"
+	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"
+	repository_workinfo "github.com/Lipe-Azevedo/escala-fds/src/model/repository/workinfo"
+	service_user "github.com/Lipe-Azevedo/escala-fds/src/model/service/user"
 )
 
 // WorkInfoDomainService define a interface para os serviços de domínio de WorkInfo.

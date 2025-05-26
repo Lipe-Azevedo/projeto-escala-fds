@@ -4,14 +4,14 @@ import (
 	"time"
 
 	// DTOs de User (já reorganizado)
-	user_response_dto "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/user/response"
+	user_response_dto "github.com/Lipe-Azevedo/escala-fds/src/controller/user/response"
 	// DTOs de WorkInfo (já reorganizado)
-	workinfo_response_dto "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/workinfo/response"
+	workinfo_response_dto "github.com/Lipe-Azevedo/escala-fds/src/controller/workinfo/response"
 	// DTOs de Swap (já reorganizado)
-	swap_response_dto "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/swap/response"
+	swap_response_dto "github.com/Lipe-Azevedo/escala-fds/src/controller/swap/response"
 
 	// IMPORT ATUALIZADO: Agora importa do subpacote 'domain'
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/domain"
+	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"
 )
 
 // ConvertUserDomainToResponse converte um domain.UserDomainInterface para user_response_dto.UserResponse.

@@ -1,11 +1,11 @@
 package swap
 
 import (
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model"
+	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
+	"github.com/Lipe-Azevedo/escala-fds/src/model"
 
 	// Import para o novo pacote do repositório swap
-	repository_swap "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/repository/swap"
+	repository_swap "github.com/Lipe-Azevedo/escala-fds/src/model/repository/swap"
 )
 
 // SwapDomainService define a interface para os serviços de domínio de Swap.

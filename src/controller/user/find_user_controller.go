@@ -4,14 +4,14 @@ import (
 	"net/http"
 	"net/mail"
 
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/logger"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err"
-	controller_response "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/user/response"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/view" // Import do pacote view
+	"github.com/Lipe-Azevedo/escala-fds/src/configuration/logger"
+	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
+	controller_response "github.com/Lipe-Azevedo/escala-fds/src/controller/user/response"
+	"github.com/Lipe-Azevedo/escala-fds/src/view" // Import do pacote view
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.uber.org/zap"
-	// "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model" // Removido se não usado diretamente para model.UserTypeMaster
+	// "github.com/Lipe-Azevedo/escala-fds/src/model" // Removido se não usado diretamente para model.UserTypeMaster
 )
 
 func (uc *userControllerInterface) FindUserByID(c *gin.Context) {

@@ -2,7 +2,7 @@ package workinfo
 
 import (
 	// Import para o novo pacote do serviço workinfo
-	service_workinfo "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/service/workinfo"
+	service_workinfo "github.com/Lipe-Azevedo/escala-fds/src/model/service/workinfo"
 	"github.com/gin-gonic/gin"
 )
 

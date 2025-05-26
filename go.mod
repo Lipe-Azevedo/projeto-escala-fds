@@ -1,4 +1,4 @@
-module github.com/Lipe-Azevedo/meu-primeio-crud-go
+module github.com/Lipe-Azevedo/escala-fds
 
 go 1.24.2
 

@@ -1,8 +1,8 @@
 package converter
 
 import (
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/repository/entity"
+	"github.com/Lipe-Azevedo/escala-fds/src/model"
+	"github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity"
 )
 
 func ConvertWorkInfoEntityToDomain(

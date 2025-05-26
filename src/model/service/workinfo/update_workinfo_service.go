@@ -3,12 +3,12 @@ package workinfo
 import (
 	"fmt"
 
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/logger"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err"
-	workinfo_request_dto "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/workinfo/request"
+	"github.com/Lipe-Azevedo/escala-fds/src/configuration/logger"
+	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
+	workinfo_request_dto "github.com/Lipe-Azevedo/escala-fds/src/controller/workinfo/request"
 
 	// IMPORT ATUALIZADO: Agora importa do subpacote 'domain'
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/domain"
+	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"
 	"go.uber.org/zap"
 )
 

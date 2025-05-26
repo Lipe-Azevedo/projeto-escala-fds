@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/logger"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/repository/entity/converter" // Necessário para converter domain para entity
-	"go.mongodb.org/mongo-driver/bson"                                                  // Para Upsert
+	"github.com/Lipe-Azevedo/escala-fds/src/configuration/logger"
+	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
+	"github.com/Lipe-Azevedo/escala-fds/src/model"
+	"github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity/converter" // Necessário para converter domain para entity
+	"go.mongodb.org/mongo-driver/bson"                                         // Para Upsert
 	"go.uber.org/zap"
 )
 

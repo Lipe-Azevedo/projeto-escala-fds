@@ -1,10 +1,10 @@
 package user
 
 import (
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err"
+	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
 	// IMPORT ATUALIZADO: Agora importa do subpacote 'domain'
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/domain"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/repository/user"
+	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"
+	"github.com/Lipe-Azevedo/escala-fds/src/model/repository/user"
 )
 
 // UserDomainService define a interface para os serviços de domínio de usuário.

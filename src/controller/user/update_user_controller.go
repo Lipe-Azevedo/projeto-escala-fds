@@ -3,13 +3,13 @@ package user
 import (
 	"net/http"
 
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/logger"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/validation"
+	"github.com/Lipe-Azevedo/escala-fds/src/configuration/logger"
+	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
+	"github.com/Lipe-Azevedo/escala-fds/src/configuration/validation"
 
 	// Usando o alias user_request_dto para o pacote de request do usuário
-	user_request_dto "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/user/request"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model"
+	user_request_dto "github.com/Lipe-Azevedo/escala-fds/src/controller/user/request"
+	"github.com/Lipe-Azevedo/escala-fds/src/model"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.uber.org/zap"

@@ -2,7 +2,7 @@ package swap
 
 import (
 	// Import para o novo pacote do serviço swap
-	service_swap "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/service/swap"
+	service_swap "github.com/Lipe-Azevedo/escala-fds/src/model/service/swap"
 	"github.com/gin-gonic/gin"
 )
 

@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/logger"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/repository/entity"           // Entidades ainda globais
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/repository/entity/converter" // Conversores ainda globais
+	"github.com/Lipe-Azevedo/escala-fds/src/configuration/logger"
+	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
+	"github.com/Lipe-Azevedo/escala-fds/src/model"
+	"github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity"           // Entidades ainda globais
+	"github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity/converter" // Conversores ainda globais
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"

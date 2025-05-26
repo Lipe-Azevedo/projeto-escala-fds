@@ -3,14 +3,14 @@ package workinfo
 import (
 	"net/http"
 
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/logger"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err" // Adicionado para NewForbiddenError
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/validation"
+	"github.com/Lipe-Azevedo/escala-fds/src/configuration/logger"
+	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err" // Adicionado para NewForbiddenError
+	"github.com/Lipe-Azevedo/escala-fds/src/configuration/validation"
 
 	// Import para o DTO de request de workinfo, usando alias
-	workinfo_request_dto "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/workinfo/request"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model" // Para model.UserTypeMaster e model.Team, etc.
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/view"
+	workinfo_request_dto "github.com/Lipe-Azevedo/escala-fds/src/controller/workinfo/request"
+	"github.com/Lipe-Azevedo/escala-fds/src/model" // Para model.UserTypeMaster e model.Team, etc.
+	"github.com/Lipe-Azevedo/escala-fds/src/view"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )

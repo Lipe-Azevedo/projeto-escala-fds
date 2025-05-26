@@ -2,7 +2,7 @@ package user
 
 import (
 	// Import ajustado para o novo pacote do serviço de usuário
-	service_user "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/service/user"
+	service_user "github.com/Lipe-Azevedo/escala-fds/src/model/service/user"
 	"github.com/gin-gonic/gin"
 )
 
