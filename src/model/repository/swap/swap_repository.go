@@ -2,7 +2,7 @@ package swap
 
 import (
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
-	"github.com/Lipe-Azevedo/escala-fds/src/model"
+	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -14,24 +14,24 @@ const (
 // SwapRepository define a interface para o repositório de trocas.
 type SwapRepository interface {
 	CreateSwap(
-		swapDomain model.SwapDomainInterface,
-	) (model.SwapDomainInterface, *rest_err.RestErr)
+		swapDomain domain.SwapDomainInterface,
+	) (domain.SwapDomainInterface, *rest_err.RestErr)
 
 	FindSwapByID(
 		id string,
-	) (model.SwapDomainInterface, *rest_err.RestErr)
+	) (domain.SwapDomainInterface, *rest_err.RestErr)
 
 	FindSwapsByUserID(
 		userID string,
-	) ([]model.SwapDomainInterface, *rest_err.RestErr)
+	) ([]domain.SwapDomainInterface, *rest_err.RestErr)
 
 	FindSwapsByStatus(
-		status model.SwapStatus,
-	) ([]model.SwapDomainInterface, *rest_err.RestErr)
+		status domain.SwapStatus,
+	) ([]domain.SwapDomainInterface, *rest_err.RestErr)
 
 	UpdateSwap(
 		id string,
-		swapDomain model.SwapDomainInterface,
+		swapDomain domain.SwapDomainInterface,
 	) *rest_err.RestErr
 }
 

@@ -1,12 +1,12 @@
 package converter
 
 import (
-	"github.com/Lipe-Azevedo/escala-fds/src/model"
+	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"
 	"github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity"
 )
 
 func ConvertWorkInfoDomainToEntity(
-	domain model.WorkInfoDomainInterface,
+	domain domain.WorkInfoDomainInterface,
 ) *entity.WorkInfoEntity {
 	return &entity.WorkInfoEntity{
 		UserID:        domain.GetUserId(),

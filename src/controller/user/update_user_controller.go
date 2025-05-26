@@ -9,7 +9,7 @@ import (
 
 	// Usando o alias user_request_dto para o pacote de request do usuário
 	user_request_dto "github.com/Lipe-Azevedo/escala-fds/src/controller/user/request"
-	"github.com/Lipe-Azevedo/escala-fds/src/model"
+	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.uber.org/zap"
@@ -41,7 +41,7 @@ func (uc *userControllerInterface) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	domain := model.NewUserUpdateDomain(
+	domain := domain.NewUserUpdateDomain(
 		userRequest.Name,
 		userRequest.Password,
 	)

@@ -3,14 +3,16 @@ package swap
 import (
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/logger"
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
-	"github.com/Lipe-Azevedo/escala-fds/src/model"
+
+	// IMPORT ATUALIZADO: Agora importa do subpacote 'domain'
+	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"
 	"go.uber.org/zap"
 )
 
 func (ss *swapDomainService) FindSwapByIDServices(
 	id string,
-) (model.SwapDomainInterface, *rest_err.RestErr) {
-	logger.Info("Init FindSwapByIDServices", // Nome da função no log
+) (domain.SwapDomainInterface, *rest_err.RestErr) { // <<< USA domain.SwapDomainInterface
+	logger.Info("Init FindSwapByIDServices",
 		zap.String("journey", "findSwapByID"),
 		zap.String("swapIDToFind", id))
 
@@ -20,7 +22,7 @@ func (ss *swapDomainService) FindSwapByIDServices(
 		return nil, rest_err.NewBadRequestError("Swap ID cannot be empty")
 	}
 
-	swapDomain, err := ss.repository.FindSwapByID(id)
+	swapDomainVal, err := ss.repository.FindSwapByID(id) // Renomeado para swapDomainVal
 	if err != nil {
 		logger.Error("Error calling repository to find swap by ID", err,
 			zap.String("journey", "findSwapByID"),
@@ -31,15 +33,14 @@ func (ss *swapDomainService) FindSwapByIDServices(
 	logger.Info("FindSwapByIDServices executed successfully",
 		zap.String("journey", "findSwapByID"),
 		zap.String("swapID", id))
-	return swapDomain, nil
+	return swapDomainVal, nil
 }
 
-// Se você decidir expor FindSwapsByUserID ou FindSwapsByStatus através do serviço,
-// os métodos seriam adicionados aqui, por exemplo:
 /*
+// Se você decidir expor FindSwapsByUserID ou FindSwapsByStatus através do serviço:
 func (ss *swapDomainService) FindSwapsByUserIDServices(
     userID string,
-) ([]model.SwapDomainInterface, *rest_err.RestErr) {
+) ([]domain.SwapDomainInterface, *rest_err.RestErr) { // <<< USA domain.SwapDomainInterface
     logger.Info("Init FindSwapsByUserIDServices",
         zap.String("journey", "findSwapsByUserID"),
         zap.String("userID", userID))
@@ -47,16 +48,18 @@ func (ss *swapDomainService) FindSwapsByUserIDServices(
     if userID == "" {
         return nil, rest_err.NewBadRequestError("User ID cannot be empty")
     }
+    // ss.repository.FindSwapsByUserID já deve retornar []domain.SwapDomainInterface
     return ss.repository.FindSwapsByUserID(userID)
 }
 
 func (ss *swapDomainService) FindSwapsByStatusServices(
-    status model.SwapStatus,
-) ([]model.SwapDomainInterface, *rest_err.RestErr) {
+    status domain.SwapStatus, // <<< USA domain.SwapStatus
+) ([]domain.SwapDomainInterface, *rest_err.RestErr) { // <<< USA domain.SwapDomainInterface
     logger.Info("Init FindSwapsByStatusServices",
         zap.String("journey", "findSwapsByStatus"),
         zap.String("status", string(status)))
 
+    // ss.repository.FindSwapsByStatus já deve retornar []domain.SwapDomainInterface
     return ss.repository.FindSwapsByStatus(status)
 }
 */

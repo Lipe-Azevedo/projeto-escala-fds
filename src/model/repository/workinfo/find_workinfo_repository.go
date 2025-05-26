@@ -7,7 +7,7 @@ import (
 
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/logger"
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
-	"github.com/Lipe-Azevedo/escala-fds/src/model"
+	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"
 	"github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity"
 	"github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity/converter"
 	"go.mongodb.org/mongo-driver/bson"
@@ -17,7 +17,7 @@ import (
 
 func (wr *workInfoRepository) FindWorkInfoByUserId(
 	userId string,
-) (model.WorkInfoDomainInterface, *rest_err.RestErr) {
+) (domain.WorkInfoDomainInterface, *rest_err.RestErr) {
 	logger.Info(
 		"Init FindWorkInfoByUserId repository",
 		zap.String("journey", "findWorkInfoByUserId"),

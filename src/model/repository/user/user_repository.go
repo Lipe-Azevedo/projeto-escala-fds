@@ -2,25 +2,22 @@ package user
 
 import (
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
-	"github.com/Lipe-Azevedo/escala-fds/src/model"
+	"github.com/Lipe-Azevedo/escala-fds/src/model/domain" // CORRETO
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 const (
-	// MONGODB_USERS_COLLECTION_ENV_KEY armazena o nome da variável de ambiente que contém o nome da coleção de usuários.
 	MONGODB_USERS_COLLECTION_ENV_KEY = "MONGODB_USERS_COLLECTION"
 )
 
-// UserRepository define a interface para o repositório de usuários.
-// As implementações dos métodos estarão em arquivos separados neste pacote.
 type UserRepository interface {
 	CreateUser(
-		userDomain model.UserDomainInterface,
-	) (model.UserDomainInterface, *rest_err.RestErr)
+		userDomainReq domain.UserDomainInterface, // CORRETO
+	) (domain.UserDomainInterface, *rest_err.RestErr) // CORRETO
 
 	UpdateUser(
 		userId string,
-		userDomain model.UserDomainInterface,
+		userDomainReq domain.UserDomainInterface, // CORRETO
 	) *rest_err.RestErr
 
 	DeleteUser(
@@ -29,22 +26,19 @@ type UserRepository interface {
 
 	FindUserByEmail(
 		email string,
-	) (model.UserDomainInterface, *rest_err.RestErr)
+	) (domain.UserDomainInterface, *rest_err.RestErr) // CORRETO
 
 	FindUserByID(
 		id string,
-	) (model.UserDomainInterface, *rest_err.RestErr)
+	) (domain.UserDomainInterface, *rest_err.RestErr) // CORRETO
 
-	FindAllUsers() ([]model.UserDomainInterface, *rest_err.RestErr)
+	FindAllUsers() ([]domain.UserDomainInterface, *rest_err.RestErr) // CORRETO E CRUCIAL PARA O ERRO ATUAL
 }
 
-// userRepository é a implementação da interface UserRepository.
-// O campo databaseConnection é usado pelos métodos definidos em outros arquivos deste pacote.
 type userRepository struct {
 	databaseConnection *mongo.Database
 }
 
-// NewUserRepository cria uma nova instância de UserRepository.
 func NewUserRepository(
 	database *mongo.Database,
 ) UserRepository {

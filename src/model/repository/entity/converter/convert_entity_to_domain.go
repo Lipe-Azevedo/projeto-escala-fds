@@ -1,20 +1,20 @@
 package converter
 
 import (
-	"github.com/Lipe-Azevedo/escala-fds/src/model"
+	"github.com/Lipe-Azevedo/escala-fds/src/model/domain" // CORRETO: usa novo módulo e pacote domain
 	"github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity"
 )
 
 func ConvertEntityToDomain(
-	entity entity.UserEntity,
-) model.UserDomainInterface {
-	domain := model.NewUserDomain(
-		entity.Email,
-		entity.Password,
-		entity.Name,
-		model.UserType(entity.UserType),
+	userEntity entity.UserEntity,
+) domain.UserDomainInterface { // CORRETO: retorna domain.UserDomainInterface
+	domainObj := domain.NewUserDomain( // CORRETO: usa construtor do pacote domain
+		userEntity.Email,
+		userEntity.Password,
+		userEntity.Name,
+		domain.UserType(userEntity.UserType), // CORRETO: usa domain.UserType
 	)
 
-	domain.SetID(entity.ID.Hex())
-	return domain
+	domainObj.SetID(userEntity.ID.Hex())
+	return domainObj
 }

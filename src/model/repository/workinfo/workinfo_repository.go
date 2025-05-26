@@ -2,7 +2,7 @@ package workinfo
 
 import (
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
-	"github.com/Lipe-Azevedo/escala-fds/src/model"
+	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -14,16 +14,16 @@ const (
 // WorkInfoRepository define a interface para o repositório de WorkInfo.
 type WorkInfoRepository interface {
 	CreateWorkInfo(
-		workInfoDomain model.WorkInfoDomainInterface,
-	) (model.WorkInfoDomainInterface, *rest_err.RestErr)
+		workInfoDomain domain.WorkInfoDomainInterface,
+	) (domain.WorkInfoDomainInterface, *rest_err.RestErr)
 
 	FindWorkInfoByUserId(
 		userId string,
-	) (model.WorkInfoDomainInterface, *rest_err.RestErr)
+	) (domain.WorkInfoDomainInterface, *rest_err.RestErr)
 
 	UpdateWorkInfo(
 		userId string,
-		workInfoDomain model.WorkInfoDomainInterface,
+		workInfoDomain domain.WorkInfoDomainInterface,
 	) *rest_err.RestErr // Modificado para refletir a lógica de atualização que pode não retornar o domínio diretamente do repo
 }
 

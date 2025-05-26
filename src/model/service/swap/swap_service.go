@@ -2,27 +2,23 @@ package swap
 
 import (
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
-	"github.com/Lipe-Azevedo/escala-fds/src/model"
+	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"
 
-	// Import para o novo pacote do repositório swap
 	repository_swap "github.com/Lipe-Azevedo/escala-fds/src/model/repository/swap"
 )
 
-// SwapDomainService define a interface para os serviços de domínio de Swap.
 type SwapDomainService interface {
 	CreateSwapServices(
-		swapDomain model.SwapDomainInterface,
-	) (model.SwapDomainInterface, *rest_err.RestErr)
+		swapDomain domain.SwapDomainInterface,
+	) (domain.SwapDomainInterface, *rest_err.RestErr)
 
 	FindSwapByIDServices(
 		id string,
-	) (model.SwapDomainInterface, *rest_err.RestErr)
-
-	// Se precisar expor outros finders do repositório (ex: FindSwapsByUserID), adicione-os aqui.
+	) (domain.SwapDomainInterface, *rest_err.RestErr)
 
 	UpdateSwapServices(
 		id string,
-		swapDomain model.SwapDomainInterface, // O domain aqui pode ser um NewSwapUpdateDomain
+		swapDomain domain.SwapDomainInterface,
 	) *rest_err.RestErr
 }
 

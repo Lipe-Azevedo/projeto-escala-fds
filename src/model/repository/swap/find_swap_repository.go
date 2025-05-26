@@ -7,7 +7,7 @@ import (
 
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/logger"
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
-	"github.com/Lipe-Azevedo/escala-fds/src/model"
+	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"
 	"github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity"           // Entidades ainda globais
 	"github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity/converter" // Conversores ainda globais
 	"go.mongodb.org/mongo-driver/bson"
@@ -18,7 +18,7 @@ import (
 
 func (sr *swapRepository) FindSwapByID(
 	id string,
-) (model.SwapDomainInterface, *rest_err.RestErr) {
+) (domain.SwapDomainInterface, *rest_err.RestErr) {
 	logger.Info("Init FindSwapByID repository",
 		zap.String("journey", "findSwapByID"),
 		zap.String("swapIDToFind", id))
@@ -68,7 +68,7 @@ func (sr *swapRepository) FindSwapByID(
 
 func (sr *swapRepository) FindSwapsByUserID(
 	userID string,
-) ([]model.SwapDomainInterface, *rest_err.RestErr) {
+) ([]domain.SwapDomainInterface, *rest_err.RestErr) {
 	logger.Info("Init FindSwapsByUserID repository",
 		zap.String("journey", "findSwapsByUserID"), // Corrigido journey para corresponder à função
 		zap.String("userID", userID))
@@ -105,7 +105,7 @@ func (sr *swapRepository) FindSwapsByUserID(
 		return nil, rest_err.NewInternalServerError(fmt.Sprintf("Error decoding swaps for user %s: %s", userID, err.Error()))
 	}
 
-	var swapDomains []model.SwapDomainInterface
+	var swapDomains []domain.SwapDomainInterface
 	for _, se := range swapEntities {
 		domain := converter.ConvertSwapEntityToDomain(se) // Usando conversor global
 		swapDomains = append(swapDomains, domain)
@@ -120,8 +120,8 @@ func (sr *swapRepository) FindSwapsByUserID(
 }
 
 func (sr *swapRepository) FindSwapsByStatus(
-	status model.SwapStatus,
-) ([]model.SwapDomainInterface, *rest_err.RestErr) {
+	status domain.SwapStatus,
+) ([]domain.SwapDomainInterface, *rest_err.RestErr) {
 	logger.Info("Init FindSwapsByStatus repository",
 		zap.String("journey", "findSwapsByStatus"),
 		zap.String("status", string(status)))
@@ -153,7 +153,7 @@ func (sr *swapRepository) FindSwapsByStatus(
 		return nil, rest_err.NewInternalServerError(fmt.Sprintf("Error decoding swaps with status %s: %s", status, err.Error()))
 	}
 
-	var swapDomains []model.SwapDomainInterface
+	var swapDomains []domain.SwapDomainInterface
 	for _, se := range swapEntities {
 		swapDomains = append(swapDomains, converter.ConvertSwapEntityToDomain(se)) // Usando conversor global
 	}

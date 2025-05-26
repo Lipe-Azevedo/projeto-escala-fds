@@ -7,15 +7,15 @@ import (
 
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/logger"
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
-	"github.com/Lipe-Azevedo/escala-fds/src/model"
+	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"
 	"github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity/converter"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
 )
 
 func (wr *workInfoRepository) CreateWorkInfo(
-	workInfoDomain model.WorkInfoDomainInterface,
-) (model.WorkInfoDomainInterface, *rest_err.RestErr) {
+	workInfoDomain domain.WorkInfoDomainInterface,
+) (domain.WorkInfoDomainInterface, *rest_err.RestErr) {
 	logger.Info(
 		"Init CreateWorkInfo repository",
 		zap.String("journey", "createWorkInfo"),

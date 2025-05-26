@@ -8,7 +8,7 @@ import (
 
 	// Usando o alias user_request_dto para o pacote de request do usuário
 	user_request_dto "github.com/Lipe-Azevedo/escala-fds/src/controller/user/request"
-	"github.com/Lipe-Azevedo/escala-fds/src/model"
+	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"
 	"github.com/Lipe-Azevedo/escala-fds/src/view"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -25,9 +25,9 @@ func (uc *userControllerInterface) CreateUser(c *gin.Context) {
 		return
 	}
 
-	userTypeDomain := model.UserType(userRequest.UserType)
+	userTypeDomain := domain.UserType(userRequest.UserType)
 
-	domain := model.NewUserDomain(
+	domain := domain.NewUserDomain(
 		userRequest.Email,
 		userRequest.Password,
 		userRequest.Name,

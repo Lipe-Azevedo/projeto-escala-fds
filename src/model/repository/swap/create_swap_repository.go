@@ -7,7 +7,7 @@ import (
 
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/logger"
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
-	"github.com/Lipe-Azevedo/escala-fds/src/model"
+	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"
 	"github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity/converter" // Este caminho permanecerá global por enquanto
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -15,8 +15,8 @@ import (
 )
 
 func (sr *swapRepository) CreateSwap(
-	swapDomain model.SwapDomainInterface,
-) (model.SwapDomainInterface, *rest_err.RestErr) {
+	swapDomain domain.SwapDomainInterface,
+) (domain.SwapDomainInterface, *rest_err.RestErr) {
 	logger.Info("Init CreateSwap repository",
 		zap.String("journey", "createSwap"))
 

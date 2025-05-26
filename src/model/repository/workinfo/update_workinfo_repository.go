@@ -7,7 +7,7 @@ import (
 
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/logger"
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
-	"github.com/Lipe-Azevedo/escala-fds/src/model"
+	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"
 	"github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity/converter" // Necessário para converter domain para entity
 	"go.mongodb.org/mongo-driver/bson"                                         // Para Upsert
 	"go.uber.org/zap"
@@ -15,7 +15,7 @@ import (
 
 func (wr *workInfoRepository) UpdateWorkInfo(
 	userId string, // Este é o _id do WorkInfo a ser atualizado
-	workInfoDomain model.WorkInfoDomainInterface,
+	workInfoDomain domain.WorkInfoDomainInterface,
 ) *rest_err.RestErr {
 	logger.Info(
 		"Init UpdateWorkInfo repository",

@@ -9,7 +9,7 @@ import (
 
 	// Import para o DTO de request de workinfo, usando alias
 	workinfo_request_dto "github.com/Lipe-Azevedo/escala-fds/src/controller/workinfo/request"
-	"github.com/Lipe-Azevedo/escala-fds/src/model" // Para model.UserTypeMaster e model.Team, etc.
+	"github.com/Lipe-Azevedo/escala-fds/src/model/domain" // Para model.UserTypeMaster e model.Team, etc.
 	"github.com/Lipe-Azevedo/escala-fds/src/view"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -56,13 +56,13 @@ func (wc *workInfoControllerInterface) CreateWorkInfo(c *gin.Context) {
 		return
 	}
 
-	domain := model.NewWorkInfoDomain(
+	domain := domain.NewWorkInfoDomain(
 		targetUserId, // ID do usuário para o qual o WorkInfo está sendo criado
-		model.Team(workInfoRequest.Team),
+		domain.Team(workInfoRequest.Team),
 		workInfoRequest.Position,
-		model.Shift(workInfoRequest.DefaultShift),
-		model.Weekday(workInfoRequest.WeekdayOff),
-		model.WeekendDayOff(workInfoRequest.WeekendDayOff),
+		domain.Shift(workInfoRequest.DefaultShift),
+		domain.Weekday(workInfoRequest.WeekdayOff),
+		domain.WeekendDayOff(workInfoRequest.WeekendDayOff),
 		workInfoRequest.SuperiorID,
 	)
 

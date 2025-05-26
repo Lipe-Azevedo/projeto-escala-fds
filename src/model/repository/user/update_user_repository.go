@@ -7,7 +7,7 @@ import (
 
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/logger"
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
-	"github.com/Lipe-Azevedo/escala-fds/src/model"
+	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.uber.org/zap"
@@ -15,7 +15,7 @@ import (
 
 func (ur *userRepository) UpdateUser(
 	userId string,
-	userDomain model.UserDomainInterface,
+	userDomain domain.UserDomainInterface,
 ) *rest_err.RestErr {
 	logger.Info(
 		"Init UpdateUser repository",

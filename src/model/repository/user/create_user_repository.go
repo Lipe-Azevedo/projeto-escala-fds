@@ -7,7 +7,7 @@ import (
 
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/logger"
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
-	"github.com/Lipe-Azevedo/escala-fds/src/model"
+	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"
 	"github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity/converter"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -15,8 +15,8 @@ import (
 )
 
 func (ur *userRepository) CreateUser(
-	userDomain model.UserDomainInterface,
-) (model.UserDomainInterface, *rest_err.RestErr) {
+	userDomain domain.UserDomainInterface,
+) (domain.UserDomainInterface, *rest_err.RestErr) {
 	logger.Info(
 		"Init CreateUser repository",
 		zap.String("journey", "createUser"),

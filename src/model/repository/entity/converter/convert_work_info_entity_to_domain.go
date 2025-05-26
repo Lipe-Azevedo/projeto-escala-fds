@@ -1,20 +1,20 @@
 package converter
 
 import (
-	"github.com/Lipe-Azevedo/escala-fds/src/model"
+	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"
 	"github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity"
 )
 
 func ConvertWorkInfoEntityToDomain(
 	entity entity.WorkInfoEntity,
-) model.WorkInfoDomainInterface {
-	return model.NewWorkInfoDomain(
+) domain.WorkInfoDomainInterface {
+	return domain.NewWorkInfoDomain(
 		entity.UserID,
-		model.Team(entity.Team),
+		domain.Team(entity.Team),
 		entity.Position,
-		model.Shift(entity.DefaultShift),
-		model.Weekday(entity.WeekdayOff),
-		model.WeekendDayOff(entity.WeekendDayOff),
+		domain.Shift(entity.DefaultShift),
+		domain.Weekday(entity.WeekdayOff),
+		domain.WeekendDayOff(entity.WeekendDayOff),
 		entity.SuperiorID,
 	)
 }
