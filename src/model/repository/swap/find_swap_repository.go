@@ -1,4 +1,4 @@
-package repository
+package swap
 
 import (
 	"context"
@@ -8,33 +8,30 @@ import (
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/logger"
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err"
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/repository/entity"
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/repository/entity/converter"
+	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/repository/entity"           // Entidades ainda globais
+	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model/repository/entity/converter" // Conversores ainda globais
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
 )
 
-// FindSwapByID busca uma troca pelo seu ID.
 func (sr *swapRepository) FindSwapByID(
 	id string,
 ) (model.SwapDomainInterface, *rest_err.RestErr) {
-	logger.Info("Init FindSwapByID repository", // Mensagem de log ajustada
+	logger.Info("Init FindSwapByID repository",
 		zap.String("journey", "findSwapByID"),
 		zap.String("swapIDToFind", id))
 
-	collectionNameKey := MONGODB_SWAPS_COLLECTION_ENV_KEY
-	collectionName := os.Getenv(collectionNameKey)
-
+	collectionName := os.Getenv(MONGODB_SWAPS_COLLECTION_ENV_KEY)
 	if collectionName == "" {
-		errorMessage := fmt.Sprintf("Environment variable %s not set for swaps collection name", collectionNameKey)
+		errorMessage := fmt.Sprintf("Environment variable %s not set for swaps collection name", MONGODB_SWAPS_COLLECTION_ENV_KEY)
 		logger.Error(errorMessage, nil, zap.String("journey", "findSwapByID"))
 		return nil, rest_err.NewInternalServerError("database configuration error: swaps collection name not set")
 	}
 	collection := sr.databaseConnection.Collection(collectionName)
 
-	swapEntity := &entity.SwapEntity{}
+	swapEntity := &entity.SwapEntity{} // Usando entidade global
 
 	objectID, errHex := primitive.ObjectIDFromHex(id)
 	if errHex != nil {
@@ -46,19 +43,17 @@ func (sr *swapRepository) FindSwapByID(
 	}
 
 	filter := bson.D{{Key: "_id", Value: objectID}}
-	err := collection.FindOne(context.Background(), filter).Decode(swapEntity) // err redeclarado
+	err := collection.FindOne(context.Background(), filter).Decode(swapEntity)
 
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			errorMessage := fmt.Sprintf("Swap not found with ID: %s", id)
-			logger.Warn(errorMessage, // Mudado para Warn
+			logger.Warn(errorMessage,
 				zap.String("journey", "findSwapByID"),
 				zap.String("swapID", id))
 			return nil, rest_err.NewNotFoundError(errorMessage)
 		}
-
-		logger.Error("Error trying to find swap by ID in repository",
-			err,
+		logger.Error("Error trying to find swap by ID in repository", err,
 			zap.String("journey", "findSwapByID"),
 			zap.String("swapID", id))
 		return nil, rest_err.NewInternalServerError(err.Error())
@@ -68,23 +63,20 @@ func (sr *swapRepository) FindSwapByID(
 		zap.String("swapID", swapEntity.ID),
 		zap.String("journey", "findSwapByID"))
 
-	return converter.ConvertSwapEntityToDomain(*swapEntity), nil
+	return converter.ConvertSwapEntityToDomain(*swapEntity), nil // Usando conversor global
 }
 
-// FindSwapsByUserID busca trocas onde o userID é o solicitante ou o solicitado.
-// Esta função implementa o método da interface SwapRepository.
 func (sr *swapRepository) FindSwapsByUserID(
 	userID string,
 ) ([]model.SwapDomainInterface, *rest_err.RestErr) {
 	logger.Info("Init FindSwapsByUserID repository",
-		zap.String("journey", "findSwapsByUser"),
+		zap.String("journey", "findSwapsByUserID"), // Corrigido journey para corresponder à função
 		zap.String("userID", userID))
 
-	collectionNameKey := MONGODB_SWAPS_COLLECTION_ENV_KEY
-	collectionName := os.Getenv(collectionNameKey)
+	collectionName := os.Getenv(MONGODB_SWAPS_COLLECTION_ENV_KEY)
 	if collectionName == "" {
-		errorMessage := fmt.Sprintf("Environment variable %s not set for swaps collection name", collectionNameKey)
-		logger.Error(errorMessage, nil, zap.String("journey", "findSwapsByUser"))
+		errorMessage := fmt.Sprintf("Environment variable %s not set for swaps collection name", MONGODB_SWAPS_COLLECTION_ENV_KEY)
+		logger.Error(errorMessage, nil, zap.String("journey", "findSwapsByUserID"))
 		return nil, rest_err.NewInternalServerError("database configuration error: swaps collection name not set")
 	}
 	collection := sr.databaseConnection.Collection(collectionName)
@@ -99,36 +91,34 @@ func (sr *swapRepository) FindSwapsByUserID(
 	cursor, err := collection.Find(context.Background(), filter)
 	if err != nil {
 		logger.Error("Error finding swaps by user ID in repository", err,
-			zap.String("journey", "findSwapsByUser"),
+			zap.String("journey", "findSwapsByUserID"),
 			zap.String("userID", userID))
 		return nil, rest_err.NewInternalServerError(fmt.Sprintf("Error finding swaps for user %s: %s", userID, err.Error()))
 	}
 	defer cursor.Close(context.Background())
 
-	var swapEntities []entity.SwapEntity
+	var swapEntities []entity.SwapEntity // Usando entidade global
 	if err = cursor.All(context.Background(), &swapEntities); err != nil {
 		logger.Error("Error decoding swaps by user ID from cursor", err,
-			zap.String("journey", "findSwapsByUser"),
+			zap.String("journey", "findSwapsByUserID"),
 			zap.String("userID", userID))
 		return nil, rest_err.NewInternalServerError(fmt.Sprintf("Error decoding swaps for user %s: %s", userID, err.Error()))
 	}
 
 	var swapDomains []model.SwapDomainInterface
 	for _, se := range swapEntities {
-		domain := converter.ConvertSwapEntityToDomain(se)
+		domain := converter.ConvertSwapEntityToDomain(se) // Usando conversor global
 		swapDomains = append(swapDomains, domain)
 	}
 
 	logger.Info("Successfully found swaps by userID in repository",
 		zap.String("userID", userID),
 		zap.Int("count", len(swapDomains)),
-		zap.String("journey", "findSwapsByUser"))
+		zap.String("journey", "findSwapsByUserID"))
 
 	return swapDomains, nil
 }
 
-// FindSwapsByStatus busca trocas com um status específico.
-// Esta função implementa o método da interface SwapRepository.
 func (sr *swapRepository) FindSwapsByStatus(
 	status model.SwapStatus,
 ) ([]model.SwapDomainInterface, *rest_err.RestErr) {
@@ -136,10 +126,9 @@ func (sr *swapRepository) FindSwapsByStatus(
 		zap.String("journey", "findSwapsByStatus"),
 		zap.String("status", string(status)))
 
-	collectionNameKey := MONGODB_SWAPS_COLLECTION_ENV_KEY
-	collectionName := os.Getenv(collectionNameKey)
+	collectionName := os.Getenv(MONGODB_SWAPS_COLLECTION_ENV_KEY)
 	if collectionName == "" {
-		errorMessage := fmt.Sprintf("Environment variable %s not set for swaps collection name", collectionNameKey)
+		errorMessage := fmt.Sprintf("Environment variable %s not set for swaps collection name", MONGODB_SWAPS_COLLECTION_ENV_KEY)
 		logger.Error(errorMessage, nil, zap.String("journey", "findSwapsByStatus"))
 		return nil, rest_err.NewInternalServerError("database configuration error: swaps collection name not set")
 	}
@@ -156,7 +145,7 @@ func (sr *swapRepository) FindSwapsByStatus(
 	}
 	defer cursor.Close(context.Background())
 
-	var swapEntities []entity.SwapEntity
+	var swapEntities []entity.SwapEntity // Usando entidade global
 	if err = cursor.All(context.Background(), &swapEntities); err != nil {
 		logger.Error("Error decoding swaps by status from cursor", err,
 			zap.String("journey", "findSwapsByStatus"),
@@ -166,7 +155,7 @@ func (sr *swapRepository) FindSwapsByStatus(
 
 	var swapDomains []model.SwapDomainInterface
 	for _, se := range swapEntities {
-		swapDomains = append(swapDomains, converter.ConvertSwapEntityToDomain(se))
+		swapDomains = append(swapDomains, converter.ConvertSwapEntityToDomain(se)) // Usando conversor global
 	}
 
 	logger.Info("Successfully found swaps by status in repository",
