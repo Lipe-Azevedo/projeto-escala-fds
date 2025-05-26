@@ -1,33 +1,35 @@
 package routes
 
 import (
-	// Import para a nova interface do controller de User
+	// User (já reorganizado)
 	controller_user "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/user"
+	// WorkInfo (NOVO IMPORT)
+	controller_workinfo "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/workinfo"
 
-	// Imports para as interfaces antigas de WorkInfo e Swap (serão ajustados depois)
+	// Swap (AINDA USA O ANTIGO CAMINHO)
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller"
 	"github.com/gin-gonic/gin"
 )
 
 func InitRoutes(
 	r *gin.RouterGroup,
-	userController controller_user.UserControllerInterface, // Tipo ajustado
-	workInfoController controller.WorkInfoControllerInterface, // Mantido
+	userController controller_user.UserControllerInterface,
+	workInfoController controller_workinfo.WorkInfoControllerInterface, // <<< Tipo ajustado
 	swapController controller.SwapControllerInterface, // Mantido
 ) {
 	// Rotas de User
 	userRoutes := r.Group("/users")
 	{
 		userRoutes.POST("", userController.CreateUser)
-		userRoutes.GET("", userController.FindAllUsers) // Este handler está em controller/user/find_user_controller.go
+		userRoutes.GET("", userController.FindAllUsers)
 		userRoutes.GET("/:userId", userController.FindUserByID)
 		userRoutes.GET("/email/:userEmail", userController.FindUserByEmail)
 		userRoutes.PUT("/:userId", userController.UpdateUser)
 		userRoutes.DELETE("/:userId", userController.DeleteUser)
-		// Futura rota de login: userRoutes.POST("/login", userController.LoginUser)
 	}
 
-	// Rotas de WorkInfo (permanecem como estão por enquanto)
+	// Rotas de WorkInfo
+	// As rotas em si não mudam, apenas o tipo do controller que as manipula.
 	workInfoRoutes := r.Group("/users/:userId/work-info")
 	{
 		workInfoRoutes.POST("", workInfoController.CreateWorkInfo)
@@ -35,8 +37,8 @@ func InitRoutes(
 		workInfoRoutes.PUT("", workInfoController.UpdateWorkInfo)
 	}
 
-	// Rotas de Swap (permanecem como estão por enquanto)
-	swapRoutes := r.Group("/shift-swap") // Mantido o nome "shift-swap" conforme original
+	// Rotas de Swap (mantendo nomenclatura original)
+	swapRoutes := r.Group("/shift-swap")
 	{
 		swapRoutes.POST("", swapController.CreateSwap)
 		swapRoutes.GET("/:id", swapController.FindSwapByID)
