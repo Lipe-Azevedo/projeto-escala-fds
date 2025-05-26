@@ -5,11 +5,11 @@ import (
 
 	// DTOs de User (já reorganizado)
 	user_response_dto "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/user/response"
-	// DTOs de WorkInfo (NOVO LOCAL)
+	// DTOs de WorkInfo (já reorganizado)
 	workinfo_response_dto "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/workinfo/response"
+	// DTOs de Swap (já reorganizado)
+	swap_response_dto "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/swap/response"
 
-	// Alias para o pacote de response global/antigo (APENAS PARA SWAP AGORA)
-	global_response "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/model/response"
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/model"
 )
 
@@ -17,24 +17,20 @@ import (
 func ConvertUserDomainToResponse(
 	userDomain model.UserDomainInterface,
 ) user_response_dto.UserResponse {
-	// NOTA: O campo WorkInfo em user_response_dto.UserResponse ainda está comentado.
-	// Popula-lo aqui exigiria que userDomain contivesse WorkInfo, ou que este conversor
-	// tivesse acesso ao WorkInfoService. Isso será abordado na fase de refatoração
-	// da lógica de User e WorkInfo, se desejado que UserResponse inclua WorkInfo.
 	return user_response_dto.UserResponse{
 		ID:       userDomain.GetID(),
 		Email:    userDomain.GetEmail(),
 		Name:     userDomain.GetName(),
 		UserType: string(userDomain.GetUserType()),
-		// WorkInfo: // Descomentar e popular quando a lógica de buscar User com WorkInfo for implementada.
+		// WorkInfo:
 	}
 }
 
 // ConvertWorkInfoDomainToResponse agora usa workinfo_response_dto.WorkInfoResponse.
 func ConvertWorkInfoDomainToResponse(
 	workInfoDomain model.WorkInfoDomainInterface,
-) workinfo_response_dto.WorkInfoResponse { // <<< Tipo de retorno ajustado
-	return workinfo_response_dto.WorkInfoResponse{ // <<< Usando o DTO específico de workinfo
+) workinfo_response_dto.WorkInfoResponse {
+	return workinfo_response_dto.WorkInfoResponse{
 		UserID:        workInfoDomain.GetUserId(),
 		Team:          string(workInfoDomain.GetTeam()),
 		Position:      workInfoDomain.GetPosition(),
@@ -45,14 +41,14 @@ func ConvertWorkInfoDomainToResponse(
 	}
 }
 
-// ConvertSwapDomainToResponse usa global_response.SwapResponse (temporariamente).
+// ConvertSwapDomainToResponse agora usa swap_response_dto.SwapResponse.
 func ConvertSwapDomainToResponse(
 	domain model.SwapDomainInterface,
-) global_response.SwapResponse { // <<< Ainda usa o DTO global para Swap
+) swap_response_dto.SwapResponse {
 	approvedAt := formatTimePointer(domain.GetApprovedAt())
 	approvedBy := domain.GetApprovedBy()
 
-	return global_response.SwapResponse{
+	return swap_response_dto.SwapResponse{
 		ID:            domain.GetID(),
 		RequesterID:   domain.GetRequesterID(),
 		RequestedID:   domain.GetRequestedID(),

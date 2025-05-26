@@ -1,7 +1,8 @@
 package swap
 
 import (
-	"time" // Para time.Now() em SetApprovedAt
+	// "fmt" // Não é mais necessário aqui se não usarmos fmt.Sprintf para erros específicos
+	"time"
 
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/logger"
 	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/configuration/rest_err"
@@ -10,10 +11,10 @@ import (
 )
 
 func (ss *swapDomainService) UpdateSwapServices(
-	id string, // ID da Swap a ser atualizada
-	swapUpdateDomain model.SwapDomainInterface, // Contém os dados para atualização (pode ser um status, approvedBy, etc.)
+	id string,
+	swapUpdateInfo model.SwapDomainInterface, // Renomeado para clareza, contém info do update (status, approver)
 ) *rest_err.RestErr {
-	logger.Info("Init UpdateSwapServices", // Nome da função no log
+	logger.Info("Init UpdateSwapServices",
 		zap.String("journey", "updateSwap"),
 		zap.String("swapID", id))
 
@@ -23,99 +24,64 @@ func (ss *swapDomainService) UpdateSwapServices(
 		return rest_err.NewBadRequestError("Swap ID cannot be empty")
 	}
 
-	// 1. Buscar a Swap existente para garantir que ela existe antes de atualizar.
 	existingSwap, findErr := ss.repository.FindSwapByID(id)
 	if findErr != nil {
 		logger.Error("Swap to update not found by service", findErr,
 			zap.String("journey", "updateSwap"),
 			zap.String("swapID", id))
-		return findErr // Retorna o erro do repositório (ex: NotFoundError)
+		return findErr
 	}
 
-	// 2. Aplicar as atualizações do swapUpdateDomain ao existingSwap.
-	// O controller é responsável por construir o swapUpdateDomain corretamente
-	// com base no que pode ser atualizado (ex: apenas o status e quem aprovou).
-	// Exemplo: Atualizando status e dados de aprovação.
-	// A sua struct swapDomain já tem SetStatus, SetApprovedAt, SetApprovedBy.
-	// O seu NewSwapUpdateDomain não tem campos para status, approvedAt, approvedBy.
-	// O controller chama NewSwapUpdateDomain e depois SetApprovedBy.
-	// O status vem da request e é setado no domain pelo controller antes de chamar este serviço.
+	// Aplicar apenas as atualizações de status e aprovação
+	newStatus := swapUpdateInfo.GetStatus()
+	existingSwap.SetStatus(newStatus)
 
-	// O swapUpdateDomain que chega aqui (vindo do controller) já tem:
-	// - Os campos de Current/New Shift/DayOff (do NewSwapUpdateDomain).
-	// - ApprovedBy (setado pelo controller).
-	// - O Status deve ser setado no controller com base na request /status ANTES de chamar este serviço.
-
-	// O que precisamos fazer é transferir os campos mutáveis de swapUpdateDomain para existingSwap
-	// ou, se swapUpdateDomain já é o estado final desejado (exceto ID e CreatedAt),
-	// podemos passá-lo diretamente para o repositório.
-	// A sua lógica atual no controller de UpdateSwapStatus parece criar um novo domain
-	// e então chamar o serviço de update.
-
-	// Vamos assumir que swapUpdateDomain contém os campos que DEVEM ser atualizados.
-	// E que `existingSwap` é a nossa base.
-
-	// Exemplo de lógica de atualização no serviço:
-	// O controller de UpdateSwapStatus recebe um `status` (pending, approved, rejected).
-	// Ele deve construir um `swapUpdateDomain` (usando `NewSwapUpdateDomain` ou similar)
-	// e então explicitamente setar o status, e se for 'approved', o `approvedAt` e `approvedBy`.
-
-	// Se o status está mudando para "approved":
-	if swapUpdateDomain.GetStatus() == model.StatusApproved && existingSwap.GetStatus() != model.StatusApproved {
-		// Garante que approvedAt e approvedBy sejam definidos se o status for 'approved'.
-		// O controller já seta o ApprovedBy.
-		// Aqui podemos setar o ApprovedAt.
-		if swapUpdateDomain.GetApprovedAt() == nil || swapUpdateDomain.GetApprovedAt().IsZero() { // Se o controller não setou
-			now := time.Now()
-			swapUpdateDomain.SetApprovedAt(now) // O SetApprovedAt na sua interface usa ponteiro, precisa ajustar
+	if newStatus == model.StatusApproved {
+		// ApprovedBy é setado pelo controller no swapUpdateInfo
+		if swapUpdateInfo.GetApprovedBy() != nil && *swapUpdateInfo.GetApprovedBy() != "" {
+			existingSwap.SetApprovedBy(*swapUpdateInfo.GetApprovedBy())
 		}
-	} else if swapUpdateDomain.GetStatus() == model.StatusRejected && existingSwap.GetStatus() != model.StatusRejected {
-		// Se rejeitado, talvez limpar ApprovedAt e ApprovedBy?
-		// A sua interface SwapDomainInterface não tem métodos para "limpar" (setar para nil) ApprovedAt/By.
-		// Precisaria adicionar `ClearApprovedAt()` e `ClearApprovedBy()` ou permitir `SetApprovedAt(nil)`.
-		// Por agora, o `updateFields` no repositório setará para o que estiver no domain.
-	} else if swapUpdateDomain.GetStatus() == model.StatusPending && existingSwap.GetStatus() != model.StatusPending {
-		// Se voltando para pendente, limpar campos de aprovação.
+		// ApprovedAt é setado pelo controller no swapUpdateInfo, ou aqui se não estiver presente
+		if swapUpdateInfo.GetApprovedAt() != nil && !swapUpdateInfo.GetApprovedAt().IsZero() {
+			existingSwap.SetApprovedAt(*swapUpdateInfo.GetApprovedAt())
+		} else { // Se o controller não setou ApprovedAt mas o status é approved, setamos agora.
+			now := time.Now()
+			existingSwap.SetApprovedAt(now)
+		}
+	} else {
+		// Se o status não for "approved" (ex: rejected, pending),
+		// podemos querer limpar ApprovedAt e ApprovedBy.
+		// A interface SwapDomainInterface não tem métodos para setar ApprovedAt/By para nil.
+		// Se precisarmos disso, teríamos que adicionar métodos como ClearApprovedAt() ou modificar os setters
+		// para aceitar um ponteiro de tempo ou uma flag.
+		// Por agora, o comportamento é que, se não for approved, esses campos podem manter valores antigos
+		// se não forem explicitamente alterados no swapUpdateInfo.
+		// No entanto, o UpdateSwap do repositório usa $set com o que está no domain.
+		// Se o swapUpdateInfo não tiver ApprovedAt/By, e o existingSwap for passado para o repo,
+		// os valores antigos de ApprovedAt/By do existingSwap seriam mantidos, A MENOS QUE
+		// o swapUpdateInfo (construído com NewSwapDomain e apenas status setado) tivesse
+		// ApprovedAt/By como nil/vazio e esses fossem copiados para existingSwap.
+		// A lógica atual do controller para `updatePayload` quando não é approved
+		// não seta ApprovedAt/By, então o `GetApprovedAt/By` de `swapUpdateInfo` retornaria nil.
+		// Se chamarmos `existingSwap.SetApprovedAt(*swapUpdateInfo.GetApprovedAt())` quando é nil, daria panic.
+		// Então, a lógica de limpar explicitamente ou não esses campos precisa ser definida.
+		// Assumindo que para "rejected" ou "pending", ApprovedAt e ApprovedBy devem ser nulos/vazios:
+		// Esta parte requer que a struct swapDomain por trás da interface possa ter esses campos como nil.
+		// E os setters na interface teriam que ser capazes de lidar com isso, ou teríamos `Clear` methods.
+		// Por simplicidade, vamos assumir que o repositório ao fazer $set com existingSwap, se os campos
+		// ApprovedAt e ApprovedBy em existingSwap forem nil (após esta lógica), eles serão persistidos como null.
+		// Para fazer isso, precisaríamos de uma forma de setá-los para nil na implementação de swapDomain.
+		// A sua interface SetApprovedAt(time.Time) não permite passar nil. SetApprovedBy(string) pode passar string vazia.
+
+		// Vamos manter simples: o controller prepara o swapUpdateInfo. Se lá ApprovedAt/By forem nil,
+		// e se os setters permitissem, poderiam ser "limpos".
+		// No cenário atual, o mais seguro é não tentar "limpar" explicitamente aqui sem
+		// modificar a interface/implementação do domain.
+		// Apenas o status é alterado e, se approved, os campos de aprovação são preenchidos.
 	}
 
-	// O repositório UpdateSwap já constrói o bson.M com os campos do domain passado.
-	// Passamos o swapUpdateDomain que contém as informações atualizadas + as originais não modificadas.
-	// No entanto, o repositório UpdateSwap que projetei espera todos os campos, o que pode
-	// sobrescrever campos não intencionalmente se swapUpdateDomain não for o estado completo.
-	// A melhor abordagem é o repositório receber um domain que é o estado *final* desejado,
-	// e ele faz um $set com todos os campos desse domain (exceto _id e talvez createdAt).
-
-	// Vamos refinar: o serviço deve preparar o *estado final completo* do `existingSwap`
-	// e então passar esse `existingSwap` (modificado) para o repositório.
-
-	// Atualiza os campos de existingSwap com base no que veio em swapUpdateDomain
-	// (que foi preparado pelo controller)
-	existingSwap.SetStatus(swapUpdateDomain.GetStatus())
-	if swapUpdateDomain.GetApprovedBy() != nil && *swapUpdateDomain.GetApprovedBy() != "" {
-		existingSwap.SetApprovedBy(*swapUpdateDomain.GetApprovedBy())
-	}
-	if swapUpdateDomain.GetApprovedAt() != nil && !swapUpdateDomain.GetApprovedAt().IsZero() {
-		existingSwap.SetApprovedAt(*swapUpdateDomain.GetApprovedAt())
-	} else if swapUpdateDomain.GetStatus() == model.StatusApproved && (existingSwap.GetApprovedAt() == nil || existingSwap.GetApprovedAt().IsZero()) {
-		// Se o status é approved e approvedAt não foi explicitamente setado pelo controller (via swapUpdateDomain),
-		// então setamos agora.
-		now := time.Now()
-		existingSwap.SetApprovedAt(now)
-	}
-
-	// Os outros campos como reason, shifts, daysoff, vêm do swapUpdateDomain,
-	// que no seu controller é construído com NewSwapUpdateDomain.
-	// Se a intenção é que esses também possam ser atualizados pela rota /status,
-	// o request precisaria incluí-los. Assumindo que a rota /status só muda o status e aprovação.
-	// No entanto, seu NewSwapUpdateDomain inclui shifts e daysoff.
-	// Se o UpdateSwapServices for genérico para qualquer update de Swap:
-	existingSwap.SetRequestedID(swapUpdateDomain.GetRequestedID()) // Se puder mudar
-	existingSwap.SetCurrentShift(swapUpdateDomain.GetCurrentShift())
-	existingSwap.SetNewShift(swapUpdateDomain.GetNewShift())
-	existingSwap.SetCurrentDayOff(swapUpdateDomain.GetCurrentDayOff())
-	existingSwap.SetNewDayOff(swapUpdateDomain.GetNewDayOff())
-	existingSwap.SetReason(swapUpdateDomain.GetReason())
-	// RequesterID e CreatedAt não devem mudar em um update.
+	// Os campos como RequestedID, shifts, daysoff, reason NÃO SÃO ALTERADOS por este serviço/endpoint.
+	// Eles permanecem como estão em existingSwap.
 
 	err := ss.repository.UpdateSwap(id, existingSwap) // Passa o existingSwap modificado
 	if err != nil {

@@ -8,7 +8,7 @@ type RestErr struct {
 	Message string   `json:"message"`
 	Err     string   `json:"error"`
 	Code    int      `json:"code"`
-	Causes  []Causes `json:"causes"`
+	Causes  []Causes `json:"causes,omitempty"` // Adicionado omitempty para Causes
 }
 
 type Causes struct {
@@ -32,7 +32,7 @@ func NewRestErr(message, err string, code int, causes []Causes) *RestErr {
 func NewBadRequestError(message string) *RestErr {
 	return &RestErr{
 		Message: message,
-		Err:     "bad_request", //400
+		Err:     "bad_request",
 		Code:    http.StatusBadRequest,
 	}
 }
@@ -40,7 +40,7 @@ func NewBadRequestError(message string) *RestErr {
 func NewBadRequestValidationError(message string, causes []Causes) *RestErr {
 	return &RestErr{
 		Message: message,
-		Err:     "bad_request", //400
+		Err:     "bad_request",
 		Code:    http.StatusBadRequest,
 		Causes:  causes,
 	}
@@ -49,7 +49,7 @@ func NewBadRequestValidationError(message string, causes []Causes) *RestErr {
 func NewInternalServerError(message string) *RestErr {
 	return &RestErr{
 		Message: message,
-		Err:     "internal_server_error", //500
+		Err:     "internal_server_error",
 		Code:    http.StatusInternalServerError,
 	}
 }
@@ -57,7 +57,7 @@ func NewInternalServerError(message string) *RestErr {
 func NewNotFoundError(message string) *RestErr {
 	return &RestErr{
 		Message: message,
-		Err:     "not_found", //404
+		Err:     "not_found",
 		Code:    http.StatusNotFound,
 	}
 }
@@ -65,7 +65,7 @@ func NewNotFoundError(message string) *RestErr {
 func NewForbiddenError(message string) *RestErr {
 	return &RestErr{
 		Message: message,
-		Err:     "forbidden", //403
+		Err:     "forbidden",
 		Code:    http.StatusForbidden,
 	}
 }
@@ -73,7 +73,16 @@ func NewForbiddenError(message string) *RestErr {
 func NewConflictError(message string) *RestErr {
 	return &RestErr{
 		Message: message,
-		Err:     "conflict", //409
+		Err:     "conflict",
 		Code:    http.StatusConflict,
+	}
+}
+
+// NOVA FUNÇÃO ADICIONADA
+func NewUnauthorizedError(message string) *RestErr {
+	return &RestErr{
+		Message: message,
+		Err:     "unauthorized", // HTTP 401
+		Code:    http.StatusUnauthorized,
 	}
 }

@@ -3,19 +3,19 @@ package routes
 import (
 	// User (já reorganizado)
 	controller_user "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/user"
-	// WorkInfo (NOVO IMPORT)
+	// WorkInfo (já reorganizado)
 	controller_workinfo "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/workinfo"
+	// Swap (já reorganizado)
+	controller_swap "github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller/swap"
 
-	// Swap (AINDA USA O ANTIGO CAMINHO)
-	"github.com/Lipe-Azevedo/meu-primeio-crud-go/src/controller"
 	"github.com/gin-gonic/gin"
 )
 
 func InitRoutes(
 	r *gin.RouterGroup,
 	userController controller_user.UserControllerInterface,
-	workInfoController controller_workinfo.WorkInfoControllerInterface, // <<< Tipo ajustado
-	swapController controller.SwapControllerInterface, // Mantido
+	workInfoController controller_workinfo.WorkInfoControllerInterface,
+	swapController controller_swap.SwapControllerInterface,
 ) {
 	// Rotas de User
 	userRoutes := r.Group("/users")
@@ -29,7 +29,6 @@ func InitRoutes(
 	}
 
 	// Rotas de WorkInfo
-	// As rotas em si não mudam, apenas o tipo do controller que as manipula.
 	workInfoRoutes := r.Group("/users/:userId/work-info")
 	{
 		workInfoRoutes.POST("", workInfoController.CreateWorkInfo)
@@ -37,7 +36,7 @@ func InitRoutes(
 		workInfoRoutes.PUT("", workInfoController.UpdateWorkInfo)
 	}
 
-	// Rotas de Swap (mantendo nomenclatura original)
+	// Rotas de Swap
 	swapRoutes := r.Group("/shift-swap")
 	{
 		swapRoutes.POST("", swapController.CreateSwap)
