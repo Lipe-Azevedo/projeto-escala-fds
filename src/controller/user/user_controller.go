@@ -1,13 +1,14 @@
-package user
+package user // << GARANTA QUE O PACOTE É 'user'
 
 import (
-	// Import ajustado para o novo pacote do serviço de usuário
+	// Imports para os serviços que o controller de usuário utiliza
 	service_user "github.com/Lipe-Azevedo/escala-fds/src/model/service/user"
+	service_workinfo "github.com/Lipe-Azevedo/escala-fds/src/model/service/workinfo" // Adicionado para buscar WorkInfo
 	"github.com/gin-gonic/gin"
 )
 
 // UserControllerInterface define a interface para os controllers de usuário.
-// As implementações dos handlers (métodos) estarão em arquivos separados neste pacote.
+// Todos os métodos que são chamados em routes.go devem estar aqui.
 type UserControllerInterface interface {
 	CreateUser(c *gin.Context)
 	FindUserByID(c *gin.Context)
@@ -15,19 +16,23 @@ type UserControllerInterface interface {
 	FindAllUsers(c *gin.Context)
 	UpdateUser(c *gin.Context)
 	DeleteUser(c *gin.Context)
-	// LoginUser(c *gin.Context) // Adicionaremos quando implementarmos JWT
+	// LoginUser(c *gin.Context) // Para o futuro endpoint de login
 }
 
 // userControllerInterface é a implementação da interface UserControllerInterface.
+// Os métodos (handlers) estão em arquivos separados neste mesmo pacote 'user'.
 type userControllerInterface struct {
-	service service_user.UserDomainService // Tipo ajustado para service_user.UserDomainService
+	service         service_user.UserDomainService
+	workInfoService service_workinfo.WorkInfoDomainService // Adicionado para buscar WorkInfo
 }
 
 // NewUserControllerInterface cria uma nova instância de UserControllerInterface.
 func NewUserControllerInterface(
-	serviceInterface service_user.UserDomainService, // Tipo ajustado para service_user.UserDomainService
+	userService service_user.UserDomainService,
+	workInfoService service_workinfo.WorkInfoDomainService, // Adicionado para buscar WorkInfo
 ) UserControllerInterface {
 	return &userControllerInterface{
-		service: serviceInterface,
+		service:         userService,
+		workInfoService: workInfoService,
 	}
 }

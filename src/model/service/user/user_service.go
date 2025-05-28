@@ -2,39 +2,32 @@ package user
 
 import (
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
-	// IMPORT ATUALIZADO: Agora importa do subpacote 'domain'
 	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"
-	"github.com/Lipe-Azevedo/escala-fds/src/model/repository/user"
+	repository_user "github.com/Lipe-Azevedo/escala-fds/src/model/repository/user"
+	// service_workinfo NÃO É MAIS IMPORTADO AQUI
 )
 
-// UserDomainService define a interface para os serviços de domínio de usuário.
 type UserDomainService interface {
-	CreateUserServices(userDomainReq domain.UserDomainInterface) ( // <<< USA domain.UserDomainInterface
-		domain.UserDomainInterface, *rest_err.RestErr) // <<< USA domain.UserDomainInterface
-
-	FindUserByEmailServices(
-		email string,
-	) (domain.UserDomainInterface, *rest_err.RestErr) // <<< USA domain.UserDomainInterface
-
-	FindUserByIDServices(
-		id string,
-	) (domain.UserDomainInterface, *rest_err.RestErr) // <<< USA domain.UserDomainInterface
-
-	UpdateUserServices(userId string, userUpdateRequestDomain domain.UserDomainInterface) *rest_err.RestErr // <<< USA domain.UserDomainInterface
-
+	CreateUserServices(userDomainReq domain.UserDomainInterface) (
+		domain.UserDomainInterface, *rest_err.RestErr)
+	FindUserByEmailServices(email string) (domain.UserDomainInterface, *rest_err.RestErr)
+	FindUserByIDServices(id string) (domain.UserDomainInterface, *rest_err.RestErr) // Retorna apenas UserDomain
+	UpdateUserServices(userId string, userUpdateRequestDomain domain.UserDomainInterface) *rest_err.RestErr
 	DeleteUserServices(userId string) *rest_err.RestErr
-
-	FindAllUsersServices() ([]domain.UserDomainInterface, *rest_err.RestErr) // <<< USA []domain.UserDomainInterface
+	FindAllUsersServices() ([]domain.UserDomainInterface, *rest_err.RestErr)
 }
 
-// userDomainService é a implementação da interface UserDomainService.
 type userDomainService struct {
-	userRepository user.UserRepository
+	userRepository repository_user.UserRepository
+	// workInfoService    service_workinfo.WorkInfoDomainService // REMOVIDA DEPENDÊNCIA
 }
 
-// NewUserDomainService cria uma nova instância de UserDomainService.
 func NewUserDomainService(
-	userRepository user.UserRepository,
+	userRepository repository_user.UserRepository,
+	// workInfoService service_workinfo.WorkInfoDomainService, // REMOVIDA DEPENDÊNCIA
 ) UserDomainService {
-	return &userDomainService{userRepository}
+	return &userDomainService{
+		userRepository: userRepository,
+		// workInfoService: workInfoService, // REMOVIDA INJEÇÃO
+	}
 }

@@ -1,46 +1,27 @@
 package routes
 
 import (
-	// User (já reorganizado)
-	controller_user "github.com/Lipe-Azevedo/escala-fds/src/controller/user"
-	// WorkInfo (já reorganizado)
-	controller_workinfo "github.com/Lipe-Azevedo/escala-fds/src/controller/workinfo"
-	// Swap (já reorganizado)
 	controller_swap "github.com/Lipe-Azevedo/escala-fds/src/controller/swap"
-
+	controller_user "github.com/Lipe-Azevedo/escala-fds/src/controller/user"
+	controller_workinfo "github.com/Lipe-Azevedo/escala-fds/src/controller/workinfo"
 	"github.com/gin-gonic/gin"
 )
 
 func InitRoutes(
 	r *gin.RouterGroup,
-	userController controller_user.UserControllerInterface,
+	userController controller_user.UserControllerInterface, // Tipo correto
 	workInfoController controller_workinfo.WorkInfoControllerInterface,
 	swapController controller_swap.SwapControllerInterface,
 ) {
-	// Rotas de User
+	// ... o restante do código das rotas ...
 	userRoutes := r.Group("/users")
 	{
-		userRoutes.POST("", userController.CreateUser)
+		userRoutes.POST("", userController.CreateUser) // Chamada ao método
 		userRoutes.GET("", userController.FindAllUsers)
 		userRoutes.GET("/:userId", userController.FindUserByID)
 		userRoutes.GET("/email/:userEmail", userController.FindUserByEmail)
 		userRoutes.PUT("/:userId", userController.UpdateUser)
 		userRoutes.DELETE("/:userId", userController.DeleteUser)
 	}
-
-	// Rotas de WorkInfo
-	workInfoRoutes := r.Group("/users/:userId/work-info")
-	{
-		workInfoRoutes.POST("", workInfoController.CreateWorkInfo)
-		workInfoRoutes.GET("", workInfoController.FindWorkInfoByUserId)
-		workInfoRoutes.PUT("", workInfoController.UpdateWorkInfo)
-	}
-
-	// Rotas de Swap
-	swapRoutes := r.Group("/shift-swap")
-	{
-		swapRoutes.POST("", swapController.CreateSwap)
-		swapRoutes.GET("/:id", swapController.FindSwapByID)
-		swapRoutes.PUT("/:id/status", swapController.UpdateSwapStatus)
-	}
+	// ...
 }

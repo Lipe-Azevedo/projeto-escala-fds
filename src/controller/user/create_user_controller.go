@@ -5,8 +5,6 @@ import (
 
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/logger"
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/validation"
-
-	// Usando o alias user_request_dto para o pacote de request do usuário
 	user_request_dto "github.com/Lipe-Azevedo/escala-fds/src/controller/user/request"
 	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"
 	"github.com/Lipe-Azevedo/escala-fds/src/view"
@@ -17,7 +15,7 @@ import (
 func (uc *userControllerInterface) CreateUser(c *gin.Context) {
 	logger.Info("Init CreateUser controller", zap.String("journey", "createUser"))
 
-	var userRequest user_request_dto.UserRequest // <<< Usando o alias aqui
+	var userRequest user_request_dto.UserRequest
 	if err := c.ShouldBindJSON(&userRequest); err != nil {
 		logger.Error("Error validating user info for creation", err, zap.String("journey", "createUser"))
 		errRest := validation.ValidateUserError(err)
@@ -27,14 +25,14 @@ func (uc *userControllerInterface) CreateUser(c *gin.Context) {
 
 	userTypeDomain := domain.UserType(userRequest.UserType)
 
-	domain := domain.NewUserDomain(
+	domainUser := domain.NewUserDomain( // Renomeado para domainUser para clareza
 		userRequest.Email,
 		userRequest.Password,
 		userRequest.Name,
 		userTypeDomain,
 	)
 
-	domainResult, serviceErr := uc.service.CreateUserServices(domain)
+	domainResult, serviceErr := uc.service.CreateUserServices(domainUser)
 	if serviceErr != nil {
 		logger.Error("Failed to call user creation service", serviceErr, zap.String("journey", "createUser"))
 		c.JSON(serviceErr.Code, serviceErr)
@@ -45,5 +43,7 @@ func (uc *userControllerInterface) CreateUser(c *gin.Context) {
 		zap.String("userId", domainResult.GetID()),
 		zap.String("journey", "createUser"))
 
-	c.JSON(http.StatusCreated, view.ConvertUserDomainToResponse(domainResult))
+	// Ao criar um usuário, não há WorkInfo associado ainda.
+	// Passamos nil para o argumento workInfoDomain.
+	c.JSON(http.StatusCreated, view.ConvertUserDomainToResponse(domainResult, nil)) // <<< MODIFICADO AQUI
 }

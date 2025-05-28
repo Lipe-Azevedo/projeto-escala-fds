@@ -3,15 +3,16 @@ package user
 import (
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/logger"
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
-	"github.com/Lipe-Azevedo/escala-fds/src/model/domain" // <<< IMPORT ATUALIZADO
+	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"
 	"go.uber.org/zap"
 )
 
-// UserDomainService e userRepository vêm de user_service.go e user_repository.go neste mesmo pacote (ou pacotes irmãos)
+// userDomainService struct e NewUserDomainService devem estar em user_service.go neste pacote.
+// userRepository (interface) deve ser importada ou definida de forma que ud.userRepository seja válido.
 
 func (ud *userDomainService) CreateUserServices(
-	userDomainReq domain.UserDomainInterface, // <<< domain.UserDomainInterface
-) (domain.UserDomainInterface, *rest_err.RestErr) { // <<< domain.UserDomainInterface
+	userDomainReq domain.UserDomainInterface,
+) (domain.UserDomainInterface, *rest_err.RestErr) {
 	logger.Info(
 		"Init CreateUserServices",
 		zap.String("journey", "createUser"),
@@ -25,10 +26,15 @@ func (ud *userDomainService) CreateUserServices(
 		return nil, rest_err.NewConflictError("Email is already registered in another account.")
 	}
 
-	// A criptografia será feita aqui antes de salvar, usando o método do domain
-	// userDomainReq já é uma instância de domain.UserDomainInterface
-	// que tem o método EncryptPassword (que ainda usa MD5, será alterado em seguida).
-	userDomainReq.EncryptPassword() // Chamada ao método da interface
+	// A criptografia será feita aqui antes de salvar.
+	// O método EncryptPassword() agora retorna um erro.
+	if err := userDomainReq.EncryptPassword(); err != nil { // <<< MODIFICADO AQUI para tratar o erro
+		logger.Error("Error encrypting password during user creation", err, // Adicionado 'err' ao log
+			zap.String("journey", "createUser"),
+			zap.String("email", userDomainReq.GetEmail()))
+		// Retorna um erro interno do servidor, pois a falha na criptografia é um problema sério.
+		return nil, rest_err.NewInternalServerError("Error processing user credentials")
+	}
 
 	userDomainRepository, repoErr := ud.userRepository.CreateUser(userDomainReq)
 	if repoErr != nil {
