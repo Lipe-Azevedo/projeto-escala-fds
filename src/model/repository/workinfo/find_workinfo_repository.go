@@ -9,7 +9,7 @@ import (
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
 	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"
 	"github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity"
-	"github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity/converter"
+	workinfoconv "github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity/converter/workinfo" // IMPORT MODIFICADO
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
@@ -32,7 +32,7 @@ func (wr *workInfoRepository) FindWorkInfoByUserId(
 	collection := wr.databaseConnection.Collection(collectionName)
 
 	workInfoEntity := &entity.WorkInfoEntity{}
-	// Filtro é pelo campo "_id", pois UserID na entidade WorkInfoEntity está mapeado para _id.
+	// Filtro é pelo campo "_id", pois UserID na entidade WorkInfoEntity está mapeado para _id e é uma string.
 	filter := bson.M{"_id": userId}
 
 	err := collection.FindOne(context.Background(), filter).Decode(workInfoEntity)
@@ -53,5 +53,5 @@ func (wr *workInfoRepository) FindWorkInfoByUserId(
 		zap.String("userID_found", workInfoEntity.UserID),
 		zap.String("journey", "findWorkInfoByUserId"))
 
-	return converter.ConvertWorkInfoEntityToDomain(*workInfoEntity), nil
+	return workinfoconv.ConvertWorkInfoEntityToDomain(*workInfoEntity), nil // USO MODIFICADO
 }

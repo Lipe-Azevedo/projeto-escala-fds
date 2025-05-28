@@ -1,7 +1,6 @@
-package user // << GARANTA QUE O PACOTE É 'user'
+package user
 
 import (
-	// Imports para os serviços que o controller de usuário utiliza
 	service_user "github.com/Lipe-Azevedo/escala-fds/src/model/service/user"
 	service_workinfo "github.com/Lipe-Azevedo/escala-fds/src/model/service/workinfo" // Adicionado para buscar WorkInfo
 	"github.com/gin-gonic/gin"
@@ -16,7 +15,7 @@ type UserControllerInterface interface {
 	FindAllUsers(c *gin.Context)
 	UpdateUser(c *gin.Context)
 	DeleteUser(c *gin.Context)
-	// LoginUser(c *gin.Context) // Para o futuro endpoint de login
+	LoginUser(c *gin.Context) // NOVO MÉTODO
 }
 
 // userControllerInterface é a implementação da interface UserControllerInterface.

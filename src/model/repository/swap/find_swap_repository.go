@@ -8,8 +8,8 @@ import (
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/logger"
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
 	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"
-	"github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity"           // Entidades ainda globais
-	"github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity/converter" // Conversores ainda globais
+	"github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity"
+	swapconv "github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity/converter/swap" // IMPORT MODIFICADO
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -31,18 +31,21 @@ func (sr *swapRepository) FindSwapByID(
 	}
 	collection := sr.databaseConnection.Collection(collectionName)
 
-	swapEntity := &entity.SwapEntity{} // Usando entidade global
+	swapEntity := &entity.SwapEntity{}
 
-	objectID, errHex := primitive.ObjectIDFromHex(id)
+	objectID, errHex := primitive.ObjectIDFromHex(id) // Assume que o ID é um ObjectID em formato string
 	if errHex != nil {
-		errorMessage := fmt.Sprintf("Invalid Swap ID format: %s", id)
+		// Se o ID no banco não for um ObjectID (ex: UUID string), esta conversão falhará.
+		// SwapEntity.ID é string, então o filtro deve ser `bson.D{{Key: "_id", Value: id}}` se o ID já é a string final.
+		// Mas geralmente, para _id, usamos ObjectID.
+		errorMessage := fmt.Sprintf("Invalid Swap ID format, cannot convert to ObjectID: %s", id)
 		logger.Error(errorMessage, errHex,
 			zap.String("journey", "findSwapByID"),
 			zap.String("swapID", id))
 		return nil, rest_err.NewBadRequestError(errorMessage)
 	}
 
-	filter := bson.D{{Key: "_id", Value: objectID}}
+	filter := bson.D{{Key: "_id", Value: objectID}} // Filtra por ObjectID
 	err := collection.FindOne(context.Background(), filter).Decode(swapEntity)
 
 	if err != nil {
@@ -60,17 +63,17 @@ func (sr *swapRepository) FindSwapByID(
 	}
 
 	logger.Info("FindSwapByID repository executed successfully",
-		zap.String("swapID", swapEntity.ID),
+		zap.String("swapID", swapEntity.ID), // swapEntity.ID é a string do _id
 		zap.String("journey", "findSwapByID"))
 
-	return converter.ConvertSwapEntityToDomain(*swapEntity), nil // Usando conversor global
+	return swapconv.ConvertSwapEntityToDomain(*swapEntity), nil // USO MODIFICADO
 }
 
 func (sr *swapRepository) FindSwapsByUserID(
 	userID string,
 ) ([]domain.SwapDomainInterface, *rest_err.RestErr) {
 	logger.Info("Init FindSwapsByUserID repository",
-		zap.String("journey", "findSwapsByUserID"), // Corrigido journey para corresponder à função
+		zap.String("journey", "findSwapsByUserID"),
 		zap.String("userID", userID))
 
 	collectionName := os.Getenv(MONGODB_SWAPS_COLLECTION_ENV_KEY)
@@ -81,6 +84,7 @@ func (sr *swapRepository) FindSwapsByUserID(
 	}
 	collection := sr.databaseConnection.Collection(collectionName)
 
+	// Assume que requester_id e requested_id são strings (podem ser IDs de usuário no formato string)
 	filter := bson.M{
 		"$or": []bson.M{
 			{"requester_id": userID},
@@ -97,7 +101,7 @@ func (sr *swapRepository) FindSwapsByUserID(
 	}
 	defer cursor.Close(context.Background())
 
-	var swapEntities []entity.SwapEntity // Usando entidade global
+	var swapEntities []entity.SwapEntity
 	if err = cursor.All(context.Background(), &swapEntities); err != nil {
 		logger.Error("Error decoding swaps by user ID from cursor", err,
 			zap.String("journey", "findSwapsByUserID"),
@@ -107,7 +111,7 @@ func (sr *swapRepository) FindSwapsByUserID(
 
 	var swapDomains []domain.SwapDomainInterface
 	for _, se := range swapEntities {
-		domain := converter.ConvertSwapEntityToDomain(se) // Usando conversor global
+		domain := swapconv.ConvertSwapEntityToDomain(se) // USO MODIFICADO
 		swapDomains = append(swapDomains, domain)
 	}
 
@@ -145,7 +149,7 @@ func (sr *swapRepository) FindSwapsByStatus(
 	}
 	defer cursor.Close(context.Background())
 
-	var swapEntities []entity.SwapEntity // Usando entidade global
+	var swapEntities []entity.SwapEntity
 	if err = cursor.All(context.Background(), &swapEntities); err != nil {
 		logger.Error("Error decoding swaps by status from cursor", err,
 			zap.String("journey", "findSwapsByStatus"),
@@ -155,7 +159,7 @@ func (sr *swapRepository) FindSwapsByStatus(
 
 	var swapDomains []domain.SwapDomainInterface
 	for _, se := range swapEntities {
-		swapDomains = append(swapDomains, converter.ConvertSwapEntityToDomain(se)) // Usando conversor global
+		swapDomains = append(swapDomains, swapconv.ConvertSwapEntityToDomain(se)) // USO MODIFICADO
 	}
 
 	logger.Info("Successfully found swaps by status in repository",

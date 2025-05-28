@@ -2,12 +2,14 @@ package user
 
 import (
 	"net/http"
-	"net/mail"
+	"net/mail" // Para FindUserByEmail
 
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/logger"
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
+
+	// DTO de response do usuário, usado para declarar o tipo da slice em FindAllUsers
 	user_response_dto "github.com/Lipe-Azevedo/escala-fds/src/controller/user/response"
-	"github.com/Lipe-Azevedo/escala-fds/src/model/domain" // Import domain para domain.UserTypeCollaborator
+	"github.com/Lipe-Azevedo/escala-fds/src/model/domain" // Para domain.UserTypeCollaborator
 	"github.com/Lipe-Azevedo/escala-fds/src/view"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -30,7 +32,7 @@ func (uc *userControllerInterface) FindUserByID(c *gin.Context) {
 		return
 	}
 
-	userDomainVal, serviceErr := uc.service.FindUserByIDServices(userId)
+	userDomainVal, serviceErr := uc.service.FindUserByIDServices(userId) // uc.service é o UserDomainService
 	if serviceErr != nil {
 		logger.Error(
 			"Failed to call find user by ID service", serviceErr,
@@ -40,30 +42,29 @@ func (uc *userControllerInterface) FindUserByID(c *gin.Context) {
 		return
 	}
 
-	// Se o usuário for um colaborador, buscar seu WorkInfo
 	var workInfoDomainVal domain.WorkInfoDomainInterface // Pode ser nil
 	if userDomainVal.GetUserType() == domain.UserTypeCollaborator {
 		logger.Info("User is collaborator, attempting to fetch WorkInfo via controller",
 			zap.String("userId", userId),
 			zap.String("journey", "findUserByID"))
 		// uc.workInfoService foi injetado no userControllerInterface
-		wi, wiErr := uc.workInfoService.FindWorkInfoByUserIdServices(userId)
+		wi, wiErr := uc.workInfoService.FindWorkInfoByUserIdServices(userId) // userId é o ID do usuário
 		if wiErr != nil {
-			if wiErr.Code == http.StatusNotFound { // Comparar com http.StatusNotFound ou o código específico do seu rest_err
-				logger.Warn("WorkInfo not found for collaborator, will return user without WorkInfo",
+			// Se WorkInfo não for encontrado (404), não é um erro fatal para a busca do usuário.
+			// A view.ConvertUserDomainToResponse vai lidar com workInfoDomainVal sendo nil.
+			if wiErr.Code != http.StatusNotFound {
+				// Para outros erros ao buscar WorkInfo, logamos mas não necessariamente bloqueamos a resposta do usuário.
+				// Poderíamos optar por retornar um erro aqui se WorkInfo for crítico.
+				logger.Error("Error fetching WorkInfo for collaborator in controller, proceeding without it", wiErr,
 					zap.String("userId", userId),
 					zap.String("journey", "findUserByID"))
-				// Não é um erro fatal para a busca do usuário, workInfoDomainVal permanecerá nil
 			} else {
-				// Outro erro ao buscar WorkInfo
-				logger.Error("Error fetching WorkInfo for collaborator in controller", wiErr,
+				logger.Warn("WorkInfo not found for collaborator, proceeding without it",
 					zap.String("userId", userId),
 					zap.String("journey", "findUserByID"))
-				// Dependendo da política, você pode querer retornar um erro aqui ou apenas logar
-				// e continuar sem o WorkInfo. Por enquanto, vamos apenas logar.
 			}
 		}
-		workInfoDomainVal = wi // Atribui mesmo se wi for nil (após um NotFound, por exemplo)
+		workInfoDomainVal = wi // Atribui wi (pode ser nil se não encontrado ou se houve erro não fatal)
 	}
 
 	logger.Info(
@@ -74,10 +75,6 @@ func (uc *userControllerInterface) FindUserByID(c *gin.Context) {
 	// Passa ambos os domínios para a função de conversão da view
 	c.JSON(http.StatusOK, view.ConvertUserDomainToResponse(userDomainVal, workInfoDomainVal))
 }
-
-// FindUserByEmail e FindAllUsers não precisam necessariamente carregar WorkInfo por padrão.
-// Se for necessário para FindUserByEmail, a lógica seria similar à de FindUserByID.
-// Para FindAllUsers, carregar WorkInfo para todos os colaboradores pode ser custoso (N+1).
 
 func (uc *userControllerInterface) FindUserByEmail(c *gin.Context) {
 	logger.Info(
@@ -106,11 +103,22 @@ func (uc *userControllerInterface) FindUserByEmail(c *gin.Context) {
 		return
 	}
 
-	var workInfoDomainVal domain.WorkInfoDomainInterface
-	if userDomainVal != nil && userDomainVal.GetUserType() == domain.UserTypeCollaborator {
+	var workInfoDomainVal domain.WorkInfoDomainInterface                                    // Pode ser nil
+	if userDomainVal != nil && userDomainVal.GetUserType() == domain.UserTypeCollaborator { // Adicionado nil check para userDomainVal
+		logger.Info("User is collaborator, attempting to fetch WorkInfo via controller (FindUserByEmail)",
+			zap.String("userId", userDomainVal.GetID()), // Usar o ID do usuário encontrado
+			zap.String("journey", "findUserByEmail"))
 		wi, wiErr := uc.workInfoService.FindWorkInfoByUserIdServices(userDomainVal.GetID())
-		if wiErr != nil && wiErr.Code != http.StatusNotFound {
-			logger.Error("Error fetching WorkInfo for collaborator in FindUserByEmail", wiErr, zap.String("userId", userDomainVal.GetID()))
+		if wiErr != nil {
+			if wiErr.Code != http.StatusNotFound {
+				logger.Error("Error fetching WorkInfo for collaborator in controller (FindUserByEmail), proceeding without it", wiErr,
+					zap.String("userId", userDomainVal.GetID()),
+					zap.String("journey", "findUserByEmail"))
+			} else {
+				logger.Warn("WorkInfo not found for collaborator (FindUserByEmail), proceeding without it",
+					zap.String("userId", userDomainVal.GetID()),
+					zap.String("journey", "findUserByEmail"))
+			}
 		}
 		workInfoDomainVal = wi
 	}
@@ -118,7 +126,7 @@ func (uc *userControllerInterface) FindUserByEmail(c *gin.Context) {
 	logger.Info(
 		"FindUserByEmail controller executed successfully",
 		zap.String("journey", "findUserByEmail"),
-		zap.String("userEmail", userDomainVal.GetEmail()))
+		zap.String("userEmail", userDomainVal.GetEmail())) // Assumindo userDomainVal não é nil aqui
 	c.JSON(http.StatusOK, view.ConvertUserDomainToResponse(userDomainVal, workInfoDomainVal))
 }
 
@@ -134,20 +142,17 @@ func (uc *userControllerInterface) FindAllUsers(c *gin.Context) {
 		return
 	}
 
-	// Para FindAllUsers, geralmente não se anexa WorkInfo para evitar N+1 queries,
-	// a menos que haja paginação ou um parâmetro explícito para incluir.
-	// O UserResponse DTO já lida com WorkInfo opcional.
 	var userResponses []user_response_dto.UserResponse
 	for _, userDomainSingle := range userDomains {
-		// Não passamos workInfo aqui; ele será nil por padrão no UserResponse.
-		// Se quiséssemos incluir, teríamos que buscar para cada colaborador.
-		// Para simplicidade agora, não vamos incluir em FindAllUsers.
-		// Se necessário, uma nova lógica de busca e anexação seria necessária aqui.
+		// Para FindAllUsers, geralmente não anexamos WorkInfo para cada usuário
+		// para evitar N+1 queries, a menos que explicitamente solicitado.
+		// Se precisarmos, a lógica seria similar à de FindUserByID, dentro deste loop.
 		var singleWorkInfoDomain domain.WorkInfoDomainInterface
 		if userDomainSingle.GetUserType() == domain.UserTypeCollaborator {
-			// Poderia buscar aqui, mas cuidado com N+1
+			// Exemplo de como poderia ser (CUIDADO COM N+1 QUERIES):
 			// wi, _ := uc.workInfoService.FindWorkInfoByUserIdServices(userDomainSingle.GetID())
 			// singleWorkInfoDomain = wi
+			// Por ora, deixamos nil.
 		}
 		userResponses = append(userResponses, view.ConvertUserDomainToResponse(userDomainSingle, singleWorkInfoDomain))
 	}

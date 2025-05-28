@@ -8,7 +8,7 @@ import (
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/logger"
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
 	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"
-	"github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity/converter" // Este caminho permanecerá global por enquanto
+	swapconv "github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity/converter/swap" // IMPORT MODIFICADO
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
@@ -20,7 +20,7 @@ func (sr *swapRepository) CreateSwap(
 	logger.Info("Init CreateSwap repository",
 		zap.String("journey", "createSwap"))
 
-	collectionName := os.Getenv(MONGODB_SWAPS_COLLECTION_ENV_KEY) // Usando a constante do pacote
+	collectionName := os.Getenv(MONGODB_SWAPS_COLLECTION_ENV_KEY)
 	if collectionName == "" {
 		errorMessage := fmt.Sprintf("Environment variable %s not set for swaps collection name", MONGODB_SWAPS_COLLECTION_ENV_KEY)
 		logger.Error(errorMessage, nil, zap.String("journey", "createSwap"))
@@ -28,17 +28,23 @@ func (sr *swapRepository) CreateSwap(
 	}
 	collection := sr.databaseConnection.Collection(collectionName)
 
-	// Os conversores de entidade ainda estão em um local global.
-	// Se decidirmos movê-los para subpastas de entidade (ex: entity/user, entity/swap),
-	// este import mudaria. Por enquanto, está ok.
-	value := converter.ConvertSwapDomainToEntity(swapDomain)
+	value := swapconv.ConvertSwapDomainToEntity(swapDomain) // USO MODIFICADO
+
+	// Se o ID da entidade é omitempty e a string está vazia, o MongoDB gerará um ID.
+	// Se o ID já estiver definido no domain (e, portanto, na entidade), o MongoDB tentará usá-lo.
+	// A sua SwapEntity.ID é `bson:"_id,omitempty"`.
+	// O ConvertSwapDomainToEntity que você forneceu popula `ID: domain.GetID()`.
+	// Se domain.GetID() estiver vazio para um novo swap, o MongoDB gerará o ID.
+	// Se domain.GetID() NÃO estiver vazio, o MongoDB usará esse valor.
+	// A lógica usual é deixar o MongoDB gerar o ID na inserção para novos documentos.
+	// No seu construtor NewSwapDomain, o ID não é inicializado, então domain.GetID() será "" para um novo swap.
 
 	result, err := collection.InsertOne(context.Background(), value)
 	if err != nil {
 		if writeException, ok := err.(mongo.WriteException); ok {
 			for _, writeError := range writeException.WriteErrors {
-				if writeError.Code == 11000 {
-					errorMessage := fmt.Sprintf("Duplicate key error on creating swap: %s", writeError.Message)
+				if writeError.Code == 11000 { // Código para chave duplicada
+					errorMessage := fmt.Sprintf("Duplicate key error on creating swap (possibly _id if provided, or other unique index): %s", writeError.Message)
 					logger.Error(errorMessage, err,
 						zap.String("journey", "createSwap"))
 					return nil, rest_err.NewConflictError(errorMessage)
@@ -50,12 +56,18 @@ func (sr *swapRepository) CreateSwap(
 		return nil, rest_err.NewInternalServerError(err.Error())
 	}
 
-	generatedID := result.InsertedID.(primitive.ObjectID)
-	value.ID = generatedID.Hex() // A entidade SwapEntity tem ID string `bson:"_id,omitempty"`
+	// Se o ID foi gerado pelo MongoDB, result.InsertedID será um primitive.ObjectID.
+	// A entidade SwapEntity tem ID como string.
+	if oid, ok := result.InsertedID.(primitive.ObjectID); ok {
+		value.ID = oid.Hex() // Atualiza o ID na entidade com o valor gerado e convertido para Hex string
+	} else if strId, ok := result.InsertedID.(string); ok {
+		value.ID = strId // Se por algum motivo o InsertedID já for uma string (menos comum para _id omitido)
+	}
+	// Se o ID já estava em 'value' e foi usado, InsertedID pode ser esse mesmo valor.
 
 	logger.Info("CreateSwap repository executed successfully",
-		zap.String("swapID", value.ID),
+		zap.String("swapID", value.ID), // value.ID agora deve ser a string correta do ID
 		zap.String("journey", "createSwap"))
 
-	return converter.ConvertSwapEntityToDomain(*value), nil
+	return swapconv.ConvertSwapEntityToDomain(*value), nil // USO MODIFICADO
 }

@@ -1,4 +1,4 @@
-package converter
+package swap
 
 import (
 	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"

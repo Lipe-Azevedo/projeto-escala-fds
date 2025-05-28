@@ -8,7 +8,7 @@ import (
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/logger"
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
 	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"
-	"github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity/converter"
+	workinfoconv "github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity/converter/workinfo" // IMPORT MODIFICADO
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
 )
@@ -29,14 +29,14 @@ func (wr *workInfoRepository) CreateWorkInfo(
 	}
 	collection := wr.databaseConnection.Collection(collectionName)
 
-	value := converter.ConvertWorkInfoDomainToEntity(workInfoDomain)
-	// No WorkInfoEntity, UserID é mapeado para _id.
+	value := workinfoconv.ConvertWorkInfoDomainToEntity(workInfoDomain) // USO MODIFICADO
+	// Em WorkInfoEntity, UserID é mapeado para _id e é uma string.
 
 	_, err := collection.InsertOne(context.Background(), value)
 	if err != nil {
 		if writeException, ok := err.(mongo.WriteException); ok {
 			for _, writeError := range writeException.WriteErrors {
-				if writeError.Code == 11000 { // Erro de chave duplicada (_id, que é o UserID)
+				if writeError.Code == 11000 {
 					errorMessage := fmt.Sprintf("WorkInfo for user ID %s already exists (duplicate _id)", value.UserID)
 					logger.Error(errorMessage, err,
 						zap.String("journey", "createWorkInfo"),
@@ -55,7 +55,5 @@ func (wr *workInfoRepository) CreateWorkInfo(
 		zap.String("userID", workInfoDomain.GetUserId()),
 		zap.String("journey", "createWorkInfo"))
 
-	// Como o _id é o próprio UserID do domain, e não é gerado pelo Mongo neste caso (nós o definimos),
-	// podemos retornar o domain original.
 	return workInfoDomain, nil
 }

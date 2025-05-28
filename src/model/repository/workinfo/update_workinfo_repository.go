@@ -8,13 +8,14 @@ import (
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/logger"
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
 	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"
-	"github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity/converter" // Necessário para converter domain para entity
-	"go.mongodb.org/mongo-driver/bson"                                         // Para Upsert
+	workinfoconv "github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity/converter/workinfo" // IMPORT MODIFICADO
+	"go.mongodb.org/mongo-driver/bson"
 	"go.uber.org/zap"
+	// "go.mongodb.org/mongo-driver/mongo/options" // Não usado aqui, mas pode ser para Upsert
 )
 
 func (wr *workInfoRepository) UpdateWorkInfo(
-	userId string, // Este é o _id do WorkInfo a ser atualizado
+	userId string,
 	workInfoDomain domain.WorkInfoDomainInterface,
 ) *rest_err.RestErr {
 	logger.Info(
@@ -30,30 +31,18 @@ func (wr *workInfoRepository) UpdateWorkInfo(
 	}
 	collection := wr.databaseConnection.Collection(collectionName)
 
-	// O workInfoDomain contém o estado COMPLETO desejado para o WorkInfo.
-	// ConvertDomainToEntity irá mapear workInfoDomain.GetUserId() para o campo UserID na entidade,
-	// que por sua vez é mapeado para _id no BSON.
-	value := converter.ConvertWorkInfoDomainToEntity(workInfoDomain)
+	// workInfoDomain deve conter o estado COMPLETO e ATUALIZADO do WorkInfo.
+	// O userID no workInfoDomain deve corresponder ao _id do documento a ser atualizado.
+	// ConvertWorkInfoDomainToEntity irá mapear workInfoDomain.GetUserId() para WorkInfoEntity.UserID,
+	// que é o campo `bson:"_id"`.
+	value := workinfoconv.ConvertWorkInfoDomainToEntity(workInfoDomain) // USO MODIFICADO
 
-	// O filtro é pelo _id, que é o userId fornecido.
+	// O filtro é pelo _id, que é o userId fornecido como parâmetro (e deve ser o mesmo que workInfoDomain.GetUserId()).
 	filter := bson.M{"_id": userId}
-	// Os dados para atualização são todos os campos da entidade (exceto _id, que está no filtro).
-	// $set garante que apenas os campos fornecidos em 'value' sejam atualizados.
-	// Como WorkInfoEntity não tem omitempty em todos os campos, ele tentará setar todos.
-	// Se o WorkInfoDomain passado for o objeto completo e atualizado, isso funciona como um replace.
+
+	// $set garante que apenas os campos fornecidos em 'value' (que é a entidade completa) sejam atualizados/substituídos.
+	// Como WorkInfoEntity não tem 'omitempty' na maioria dos campos, ele tentará setar todos.
 	update := bson.M{"$set": value}
-
-	// Poderíamos usar UpdateOne. Se a intenção for criar se não existir (Upsert),
-	// o serviço deveria ter essa lógica e chamar CreateWorkInfo ou UpdateWorkInfo.
-	// O arquivo original usava UpdateOne sem upsert.
-	// Se a lógica de atualização no serviço carrega o existente, modifica e depois salva,
-	// UpdateOne é apropriado.
-
-	// No seu código original, o update do repositório tinha um bug:
-	// filter := bson.M{"user_id": userId}
-	// Isso está incorreto porque o campo no MongoDB é "_id", não "user_id".
-	// O WorkInfoEntity tem `UserID string bson:"_id"`.
-	// A correção é usar bson.M{"_id": userId} no filtro.
 
 	result, err := collection.UpdateOne(context.Background(), filter, update)
 	if err != nil {
@@ -67,10 +56,6 @@ func (wr *workInfoRepository) UpdateWorkInfo(
 		logger.Warn("No WorkInfo found with the given user ID to update in repository",
 			zap.String("userId", userId),
 			zap.String("journey", "updateWorkInfo"))
-		// Importante: O serviço de update em seu código original busca o WorkInfo primeiro.
-		// Se não encontrar, ele retorna um erro de "não encontrado" ANTES de chamar o repositório de update.
-		// Então, este erro de MatchedCount == 0 no repositório de update não deveria ocorrer
-		// se a lógica do serviço estiver correta. No entanto, é uma boa salvaguarda.
 		return rest_err.NewNotFoundError(fmt.Sprintf("WorkInfo for user ID %s not found for update", userId))
 	}
 

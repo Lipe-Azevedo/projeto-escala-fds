@@ -15,11 +15,12 @@ type UserDomainService interface {
 	UpdateUserServices(userId string, userUpdateRequestDomain domain.UserDomainInterface) *rest_err.RestErr
 	DeleteUserServices(userId string) *rest_err.RestErr
 	FindAllUsersServices() ([]domain.UserDomainInterface, *rest_err.RestErr)
+	LoginUserServices(email, password string) (string, domain.UserDomainInterface, *rest_err.RestErr) // NOVO MÉTODO (retorna token, userDomain, error)
 }
 
 type userDomainService struct {
 	userRepository repository_user.UserRepository
-	// workInfoService    service_workinfo.WorkInfoDomainService // REMOVIDA DEPENDÊNCIA
+	// workInfoService  service_workinfo.WorkInfoDomainService // REMOVIDA DEPENDÊNCIA
 }
 
 func NewUserDomainService(

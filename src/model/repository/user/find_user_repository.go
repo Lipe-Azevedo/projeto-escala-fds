@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Lipe-Azevedo/escala-fds/src/configuration/logger"   // CORRETO
-	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err" // CORRETO
-	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"           // CORRETO
+	"github.com/Lipe-Azevedo/escala-fds/src/configuration/logger"
+	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
+	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"
 	"github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity"
-	"github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity/converter"
+	userconv "github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity/converter/user" // IMPORT MODIFICADO
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -17,13 +17,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// FindUserByID (verifique também a assinatura e o retorno desta função)
 func (ur *userRepository) FindUserByID(id string) (domain.UserDomainInterface, *rest_err.RestErr) {
-	// ... sua lógica aqui ...
-	// Exemplo de retorno ao final:
-	// userEntity := &entity.UserEntity{}
-	// ... busca userEntity ...
-	// return converter.ConvertEntityToDomain(*userEntity), nil
 	logger.Info(
 		"Init FindUserByID repository",
 		zap.String("journey", "findUserByID"),
@@ -56,16 +50,10 @@ func (ur *userRepository) FindUserByID(id string) (domain.UserDomainInterface, *
 		return nil, rest_err.NewInternalServerError(fmt.Sprintf("Error finding user by ID: %s", err.Error()))
 	}
 	logger.Info("FindUserByID repository executed successfully", zap.String("journey", "findUserByID"), zap.String("userId", userEntity.ID.Hex()))
-	return converter.ConvertEntityToDomain(*userEntity), nil
+	return userconv.ConvertEntityToDomain(*userEntity), nil // USO MODIFICADO
 }
 
-// FindUserByEmail (verifique também a assinatura e o retorno desta função)
 func (ur *userRepository) FindUserByEmail(email string) (domain.UserDomainInterface, *rest_err.RestErr) {
-	// ... sua lógica aqui ...
-	// Exemplo de retorno ao final:
-	// userEntity := &entity.UserEntity{}
-	// ... busca userEntity ...
-	// return converter.ConvertEntityToDomain(*userEntity), nil
 	logger.Info(
 		"Init FindUserByEmail repository",
 		zap.String("journey", "findUserByEmail"),
@@ -92,10 +80,10 @@ func (ur *userRepository) FindUserByEmail(email string) (domain.UserDomainInterf
 		return nil, rest_err.NewInternalServerError(fmt.Sprintf("Error finding user by email: %s", err.Error()))
 	}
 	logger.Info("FindUserByEmail repository executed successfully", zap.String("journey", "findUserByEmail"), zap.String("email", email), zap.String("userId", userEntity.ID.Hex()))
-	return converter.ConvertEntityToDomain(*userEntity), nil
+	return userconv.ConvertEntityToDomain(*userEntity), nil // USO MODIFICADO
 }
 
-func (ur *userRepository) FindAllUsers() ([]domain.UserDomainInterface, *rest_err.RestErr) { // CORRETO: Assinatura
+func (ur *userRepository) FindAllUsers() ([]domain.UserDomainInterface, *rest_err.RestErr) {
 	logger.Info("Init FindAllUsers repository",
 		zap.String("journey", "findAllUsers"))
 
@@ -123,15 +111,14 @@ func (ur *userRepository) FindAllUsers() ([]domain.UserDomainInterface, *rest_er
 		return nil, rest_err.NewInternalServerError(fmt.Sprintf("Error decoding all users: %s", err.Error()))
 	}
 
-	var userDomains []domain.UserDomainInterface // CORRETO: Tipo da slice
+	var userDomains []domain.UserDomainInterface
 	for _, ue := range userEntities {
-		// converter.ConvertEntityToDomain agora retorna domain.UserDomainInterface
-		userDomains = append(userDomains, converter.ConvertEntityToDomain(ue)) // CORRETO
+		userDomains = append(userDomains, userconv.ConvertEntityToDomain(ue)) // USO MODIFICADO
 	}
 
 	logger.Info("FindAllUsers repository executed successfully",
 		zap.Int("count", len(userDomains)),
 		zap.String("journey", "findAllUsers"))
 
-	return userDomains, nil // CORRETO
+	return userDomains, nil
 }

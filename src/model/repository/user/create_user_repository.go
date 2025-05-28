@@ -8,7 +8,7 @@ import (
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/logger"
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
 	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"
-	"github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity/converter"
+	userconv "github.com/Lipe-Azevedo/escala-fds/src/model/repository/entity/converter/user" // IMPORT MODIFICADO
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
@@ -30,17 +30,14 @@ func (ur *userRepository) CreateUser(
 	}
 	collection := ur.databaseConnection.Collection(collectionName)
 
-	value := converter.ConvertDomainToEntity(userDomain)
+	value := userconv.ConvertDomainToEntity(userDomain) // USO MODIFICADO
 
 	result, err := collection.InsertOne(context.Background(), value)
 	if err != nil {
 		if writeException, ok := err.(mongo.WriteException); ok {
 			for _, writeError := range writeException.WriteErrors {
-				if writeError.Code == 11000 { // Código de erro para chave duplicada
-					// Verifica se o erro de duplicidade é no índice do email (comum)
-					// A mensagem de erro do MongoDB geralmente indica qual chave causou o problema.
+				if writeError.Code == 11000 {
 					errorMessage := fmt.Sprintf("User with email %s already exists or another unique constraint violated.", value.Email)
-					// Poderia analisar writeError.Message para ser mais específico se necessário.
 					logger.Error(errorMessage, err,
 						zap.String("journey", "createUser"),
 						zap.String("email", value.Email))
@@ -62,5 +59,5 @@ func (ur *userRepository) CreateUser(
 		zap.String("journey", "createUser"),
 	)
 
-	return converter.ConvertEntityToDomain(*value), nil
+	return userconv.ConvertEntityToDomain(*value), nil // USO MODIFICADO
 }
