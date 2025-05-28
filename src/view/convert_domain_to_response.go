@@ -3,6 +3,7 @@ package view
 import (
 	"time"
 
+	comment_response_dto "github.com/Lipe-Azevedo/escala-fds/src/controller/comment/response" // NOVO IMPORT
 	swap_response_dto "github.com/Lipe-Azevedo/escala-fds/src/controller/swap/response"
 	user_response_dto "github.com/Lipe-Azevedo/escala-fds/src/controller/user/response"
 	workinfo_response_dto "github.com/Lipe-Azevedo/escala-fds/src/controller/workinfo/response"
@@ -23,11 +24,8 @@ func ConvertUserDomainToResponse(
 	}
 
 	if workInfoDomain != nil && userDomain.GetUserType() == domain.UserTypeCollaborator {
-		// Converte o workInfoDomain para workinfo_response_dto.WorkInfoResponse
-		// e atribui ao campo WorkInfo de userResp.
-		// A função ConvertWorkInfoDomainToResponse já existe e faz essa conversão.
 		wiResp := ConvertWorkInfoDomainToResponse(workInfoDomain)
-		userResp.WorkInfo = &wiResp // Atribui o endereço da WorkInfoResponse convertida
+		userResp.WorkInfo = &wiResp
 	}
 
 	return userResp
@@ -51,8 +49,6 @@ func ConvertSwapDomainToResponse(
 	swapDomainVal domain.SwapDomainInterface,
 ) swap_response_dto.SwapResponse {
 	approvedAt := formatTimePointer(swapDomainVal.GetApprovedAt())
-	// Corrigido: GetApprovedBy retorna *string, então a conversão direta é melhor
-	// approvedBy := formatTimePointerToString(swapDomainVal.GetApprovedBy())
 	approvedBy := swapDomainVal.GetApprovedBy()
 
 	return swap_response_dto.SwapResponse{
@@ -71,6 +67,22 @@ func ConvertSwapDomainToResponse(
 	}
 }
 
+// ConvertCommentDomainToResponse converte um CommentDomain para CommentResponse DTO.
+func ConvertCommentDomainToResponse( // <-- NOVA FUNÇÃO
+	commentDomain domain.CommentDomainInterface,
+) comment_response_dto.CommentResponse {
+	return comment_response_dto.CommentResponse{
+		ID:             commentDomain.GetID(),
+		CollaboratorID: commentDomain.GetCollaboratorID(),
+		AuthorID:       commentDomain.GetAuthorID(),
+		Date:           commentDomain.GetDate().Format("2006-01-02"), // Formata a data
+		Text:           commentDomain.GetText(),
+		CreatedAt:      commentDomain.GetCreatedAt(),
+		UpdatedAt:      commentDomain.GetUpdatedAt(),
+	}
+}
+
+// formatTimePointer é uma função auxiliar para formatar *time.Time para *string.
 func formatTimePointer(t *time.Time) *string {
 	if t == nil {
 		return nil
@@ -78,12 +90,3 @@ func formatTimePointer(t *time.Time) *string {
 	formatted := t.Format(time.RFC3339)
 	return &formatted
 }
-
-// Removido formatTimePointerToString pois approvedBy já é *string
-// func formatTimePointerToString(s *string) *string {
-//     if s == nil {
-//         return nil
-//     }
-//     val := *s
-//     return &val
-// }
