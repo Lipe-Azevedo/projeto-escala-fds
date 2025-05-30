@@ -22,13 +22,13 @@ func InitRoutes(
 	api := r.Group("/api")
 	api.Use(middleware.AuthMiddleware())
 	{
-		userProtectedRoutes := api.Group("/users")
+		userRoutes := api.Group("/users")
 		{
-			userProtectedRoutes.GET("", userController.FindAllUsers)
-			userProtectedRoutes.GET("/:userId", userController.FindUserByID)
-			userProtectedRoutes.GET("/email/:userEmail", userController.FindUserByEmail)
-			userProtectedRoutes.PUT("/:userId", userController.UpdateUser)
-			userProtectedRoutes.DELETE("/:userId", userController.DeleteUser)
+			userRoutes.GET("", userController.FindAllUsers)
+			userRoutes.GET("/:userId", userController.FindUserByID)
+			userRoutes.GET("/email/:userEmail", userController.FindUserByEmail)
+			userRoutes.PUT("/:userId", userController.UpdateUser)
+			userRoutes.DELETE("/:userId", userController.DeleteUser)
 		}
 
 		workInfoRoutes := api.Group("/workinfo")
