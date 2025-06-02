@@ -7,7 +7,6 @@ import (
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/logger"
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/rest_err"
 	"github.com/Lipe-Azevedo/escala-fds/src/configuration/validation"
-
 	swap_request_dto "github.com/Lipe-Azevedo/escala-fds/src/controller/swap/request"
 	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"
 	"github.com/gin-gonic/gin"
@@ -26,6 +25,35 @@ func (sc *swapControllerInterface) UpdateSwapStatus(c *gin.Context) {
 			zap.String("swapID", swapID))
 		restErrVal := rest_err.NewBadRequestError("Invalid Swap ID format, must be a hex value.")
 		c.JSON(restErrVal.Code, restErrVal)
+		return
+	}
+
+	actingUserIDClaim, exists := c.Get("userID")
+	if !exists {
+		restErr := rest_err.NewInternalServerError("User ID (approver) not found in context")
+		logger.Error(restErr.Message, nil, zap.String("journey", "updateSwapStatus"))
+		c.JSON(restErr.Code, restErr)
+		return
+	}
+	approverID := actingUserIDClaim.(string)
+
+	actingUserTypeClaim, exists := c.Get("userType")
+	if !exists {
+		restErr := rest_err.NewInternalServerError("User type not found in context")
+		logger.Error(restErr.Message, nil, zap.String("journey", "updateSwapStatus"))
+		c.JSON(restErr.Code, restErr)
+		return
+	}
+	actingUserType := actingUserTypeClaim.(domain.UserType)
+
+	if actingUserType != domain.UserTypeMaster {
+		logger.Warn("Forbidden attempt to update swap status by non-master user.",
+			zap.String("journey", "updateSwapStatus"),
+			zap.String("actingUserID", approverID),
+			zap.String("actingUserType", string(actingUserType)),
+			zap.String("swapID", swapID))
+		restErr := rest_err.NewForbiddenError("You do not have permission to update swap status.")
+		c.JSON(restErr.Code, restErr)
 		return
 	}
 
@@ -56,30 +84,15 @@ func (sc *swapControllerInterface) UpdateSwapStatus(c *gin.Context) {
 		return
 	}
 
-	approverID := "temp-approver-id"
-	if approverID == "" {
-		logger.Error("Approver ID not found (simulate JWT)", nil, zap.String("journey", "updateSwapStatus"))
-		restErr_ := rest_err.NewUnauthorizedError("Unauthorized: Approver ID not found.")
-		c.JSON(restErr_.Code, restErr_)
-		return
-	}
-
 	updatePayload := domain.NewSwapDomain("", "", "", "", "", "", "")
-
 	updatePayload.SetStatus(newStatus)
 	if newStatus == domain.StatusApproved {
 		updatePayload.SetApprovedBy(approverID)
-		now := time.Now()
-		updatePayload.SetApprovedAt(now)
-	} else if newStatus == domain.StatusRejected {
-
+		updatePayload.SetApprovedAt(time.Now())
 	}
 
 	serviceErr := sc.service.UpdateSwapServices(swapID, updatePayload)
 	if serviceErr != nil {
-		logger.Error("Failed to call swap status update service", serviceErr,
-			zap.String("journey", "updateSwapStatus"),
-			zap.String("swapID", swapID))
 		c.JSON(serviceErr.Code, serviceErr)
 		return
 	}
@@ -87,6 +100,7 @@ func (sc *swapControllerInterface) UpdateSwapStatus(c *gin.Context) {
 	logger.Info("UpdateSwapStatus controller executed successfully",
 		zap.String("swapID", swapID),
 		zap.String("newStatus", string(newStatus)),
+		zap.String("approverID", approverID),
 		zap.String("journey", "updateSwapStatus"))
 
 	c.Status(http.StatusOK)
