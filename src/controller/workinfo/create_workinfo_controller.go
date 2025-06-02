@@ -9,7 +9,7 @@ import (
 	workinfo_request_dto "github.com/Lipe-Azevedo/escala-fds/src/controller/workinfo/request"
 	"github.com/Lipe-Azevedo/escala-fds/src/model/domain"
 	"github.com/Lipe-Azevedo/escala-fds/src/view"
-	"github.com/gin-gonic/gin" // Corrigido para gin-gonic/gin
+	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
@@ -17,18 +17,18 @@ func (wc *workInfoControllerInterface) CreateWorkInfo(c *gin.Context) {
 	logger.Info("Init CreateWorkInfo controller",
 		zap.String("journey", "createWorkInfo"))
 
-	// Extrair userType e userID do contexto (injetado pelo AuthMiddleware)
 	actingUserTypeClaim, exists := c.Get("userType")
 	if !exists {
-		logger.Error("userType not found in context", nil, zap.String("journey", "createWorkInfo"))
+		logger.Error("userType not found in context (middleware error?)", nil, zap.String("journey", "createWorkInfo"))
 		restErr := rest_err.NewInternalServerError("Could not retrieve user type from context")
 		c.JSON(restErr.Code, restErr)
 		return
 	}
-	// O middleware agora armazena domain.UserType diretamente
-	actingUserType, ok := actingUserTypeClaim.(domain.UserType)
-	if !ok {
-		logger.Error("userType in context is not of type domain.UserType", nil, zap.String("journey", "createWorkInfo"))
+	actingUserType, okAssertionUserType := actingUserTypeClaim.(domain.UserType)
+	if !okAssertionUserType {
+		logger.Error("userType in context is not of type domain.UserType", nil,
+			zap.String("journey", "createWorkInfo"),
+			zap.Any("retrievedType", actingUserTypeClaim))
 		restErr := rest_err.NewInternalServerError("Invalid user type format in context")
 		c.JSON(restErr.Code, restErr)
 		return
@@ -36,30 +36,39 @@ func (wc *workInfoControllerInterface) CreateWorkInfo(c *gin.Context) {
 
 	actingUserIDClaim, exists := c.Get("userID")
 	if !exists {
-		logger.Error("userID not found in context", nil, zap.String("journey", "createWorkInfo"))
+		logger.Error("userID not found in context (middleware error?)", nil, zap.String("journey", "createWorkInfo"))
 		restErr := rest_err.NewInternalServerError("Could not retrieve user ID from context")
 		c.JSON(restErr.Code, restErr)
 		return
 	}
-	actingUserID, ok := actingUserIDClaim.(string)
-	if !ok {
-		logger.Error("userID in context is not of type string", nil, zap.String("journey", "createWorkInfo"))
+	actingUserID, okAssertionUserID := actingUserIDClaim.(string)
+	if !okAssertionUserID {
+		logger.Error("userID in context is not of type string", nil,
+			zap.String("journey", "createWorkInfo"),
+			zap.Any("retrievedType", actingUserIDClaim))
 		restErr := rest_err.NewInternalServerError("Invalid user ID format in context")
 		c.JSON(restErr.Code, restErr)
 		return
 	}
 
-	// Lógica de Permissão: Somente 'master' pode criar WorkInfo.
+	logger.Info("Verificando permissão para CreateWorkInfo",
+		zap.String("journey", "createWorkInfo"),
+		zap.String("actingUserID_from_token", actingUserID),
+		zap.Any("actingUserTypeClaim_from_context_raw", actingUserTypeClaim),
+		zap.Bool("typeAssertion_userType_ok", okAssertionUserType),
+		zap.String("asserted_actingUserType_as_string", string(actingUserType)),
+		zap.String("expected_master_type_constant", string(domain.UserTypeMaster)))
+
 	if actingUserType != domain.UserTypeMaster {
 		logger.Warn("Forbidden attempt to create work info by non-master user",
 			zap.String("journey", "createWorkInfo"),
 			zap.String("actingUserID", actingUserID),
-			zap.String("actingUserType", string(actingUserType)))
+			zap.String("actingUserType_evaluated", string(actingUserType)))
 		restErr := rest_err.NewForbiddenError("You do not have permission to perform this action.")
 		c.JSON(restErr.Code, restErr)
 		return
 	}
-	logger.Info("CreateWorkInfo action performed by master user",
+	logger.Info("CreateWorkInfo action authorized for master user",
 		zap.String("actingUserID", actingUserID),
 		zap.String("journey", "createWorkInfo"))
 
@@ -82,7 +91,7 @@ func (wc *workInfoControllerInterface) CreateWorkInfo(c *gin.Context) {
 	}
 
 	domainInstance := domain.NewWorkInfoDomain(
-		targetUserId, // ID do usuário para o qual o WorkInfo está sendo criado
+		targetUserId,
 		domain.Team(workInfoRequest.Team),
 		workInfoRequest.Position,
 		domain.Shift(workInfoRequest.DefaultShift),
@@ -93,15 +102,12 @@ func (wc *workInfoControllerInterface) CreateWorkInfo(c *gin.Context) {
 
 	domainResult, serviceErr := wc.service.CreateWorkInfoServices(domainInstance)
 	if serviceErr != nil {
-		logger.Error("Failed to call workinfo creation service", serviceErr,
-			zap.String("journey", "createWorkInfo"),
-			zap.String("targetUserId", targetUserId))
 		c.JSON(serviceErr.Code, serviceErr)
 		return
 	}
 
 	logger.Info("WorkInfo created successfully via controller",
-		zap.String("targetUserIdForResult", domainResult.GetUserId()), // Nome do campo alterado para clareza
+		zap.String("targetUserIdForResult", domainResult.GetUserId()),
 		zap.String("journey", "createWorkInfo"))
 
 	c.JSON(http.StatusCreated, view.ConvertWorkInfoDomainToResponse(domainResult))

@@ -1,6 +1,5 @@
 package domain
 
-// UserType define o tipo de usuário no sistema.
 type UserType string
 
 const (
@@ -8,7 +7,6 @@ const (
 	UserTypeMaster       UserType = "master"
 )
 
-// Team define as equipes de trabalho.
 type Team string
 
 const (
@@ -17,7 +15,6 @@ const (
 	TeamTechnicalSupport Team = "Technical Support"
 )
 
-// Shift define os turnos de trabalho.
 type Shift string
 
 const (
@@ -26,7 +23,6 @@ const (
 	ShiftNight     Shift = "22:00-06:00"
 )
 
-// Weekday define os dias da semana para folgas.
 type Weekday string
 
 const (
@@ -37,7 +33,6 @@ const (
 	WeekdayFriday    Weekday = "friday"
 )
 
-// WeekendDayOff define os dias do fim de semana para folgas.
 type WeekendDayOff string
 
 const (
@@ -45,7 +40,6 @@ const (
 	WeekendSunday   WeekendDayOff = "sunday"
 )
 
-// SwapStatus define os status de uma solicitação de troca.
 type SwapStatus string
 
 const (
